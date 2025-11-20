@@ -1,10 +1,7 @@
 import { AppLayout } from "@/components";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ROUTES } from "./paths";
-import MainPage from "../pages/main/MainPage";
-import ChatPage from "../pages/chat/ChatPage";
-import CallPage from "../pages/call/CallPage";
-import SelectPage from "../pages/select/SelectPage";
+import { CallPage, ChatPage, HistoryPage, MainPage, MyGirlPage, SelectPage } from "@/pages";
 
 /**
  * 애플리케이션 라우터 설정
@@ -31,6 +28,14 @@ const router = createBrowserRouter([
       {
         path: ROUTES.MY,
         element: <SelectPage />,
+      },
+      {
+        path: ROUTES.HISTORY,
+        element: <HistoryPage />,
+      },
+      {
+        path: ROUTES.MY_GIRL,
+        element: <MyGirlPage />,
       },
     ],
   },

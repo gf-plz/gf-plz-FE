@@ -3,4 +3,6 @@ export const ROUTES = {
   CHAT: "/chat",
   MENTOR: "/call",
   MY: "/select",
+  HISTORY: "/history",
+  MY_GIRL: "/my-girl",
 };
