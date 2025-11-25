@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "@emotion/react";
 import styled from "@emotion/styled";
+import { useSearchParams } from "react-router-dom";
 import { HeaderSection, ProfileCard, ButtonGroup } from "./components";
 
 const PROFILE_CONTENT = {
@@ -34,16 +35,23 @@ export type ProfileContent = typeof PROFILE_CONTENT;
 
 const MainPage = () => {
   const theme = useTheme();
-  const [gender, setGender] = useState<GenderKey>("female");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialGender = (searchParams.get("gender") as GenderKey) || "female";
+  const [gender, setGender] = useState<GenderKey>(initialGender);
   const profile = PROFILE_CONTENT[gender];
   const accent = theme.colors.primary[gender];
+
+  const handleGenderChange = (newGender: GenderKey) => {
+    setGender(newGender);
+    setSearchParams({ gender: newGender });
+  };
 
   return (
     <PageWrapper>
       <Inner>
         <HeaderSection
           gender={gender}
-          setGender={setGender}
+          setGender={handleGenderChange}
           profileContent={PROFILE_CONTENT}
         />
         <ProfileCard profile={profile} />
