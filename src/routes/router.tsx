@@ -1,7 +1,14 @@
 import { AppLayout } from "@/components";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ROUTES } from "./paths";
-import { CallPage, ChatPage, HistoryPage, MainPage, MyGirlPage, SelectPage } from "@/pages";
+import {
+  CallPage,
+  ChatPage,
+  HistoryPage,
+  MainPage,
+  MyGirlPage,
+  SelectPage,
+} from "@/pages";
 
 /**
  * 애플리케이션 라우터 설정
@@ -11,7 +18,7 @@ import { CallPage, ChatPage, HistoryPage, MainPage, MyGirlPage, SelectPage } fro
 const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
-    element: <AppLayout />,
+    element: <AppLayout headerType="none" />,
     children: [
       {
         index: true,
@@ -22,19 +29,37 @@ const router = createBrowserRouter([
         element: <ChatPage />,
       },
       {
-        path: ROUTES.MENTOR,
+        path: ROUTES.CALL,
         element: <CallPage />,
       },
+    ],
+  },
+  {
+    path: ROUTES.SELECT,
+    element: <AppLayout />,
+    children: [
       {
-        path: ROUTES.MY,
+        index: true,
         element: <SelectPage />,
       },
+    ],
+  },
+  {
+    path: ROUTES.HISTORY,
+    element: <AppLayout />,
+    children: [
       {
-        path: ROUTES.HISTORY,
+        index: true,
         element: <HistoryPage />,
       },
+    ],
+  },
+  {
+    path: ROUTES.MY_GIRL,
+    element: <AppLayout />,
+    children: [
       {
-        path: ROUTES.MY_GIRL,
+        index: true,
         element: <MyGirlPage />,
       },
     ],

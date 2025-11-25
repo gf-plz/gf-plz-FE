@@ -12,12 +12,18 @@ const gray = {
   100: "#1a1c20", // 검은색
 };
 
+const primary = {
+  default: "#004BAD",
+  male: "#004BAD",
+  female: "#FF2AA6",
+};
+
 export const theme = {
   colors: {
     gray,
     // 시맨틱 색상 (의미 기반 컬러 토큰)
-    background: "#F8F6EA",
-    primary: "#DA2127",
+    background: "#FAFAFA",
+    primary,
     // 유저 태그 색상
     tag: {
       purple: "#9790C3",
@@ -39,6 +45,11 @@ export const theme = {
 
   // 타이포그래피 (폰트 스타일)
   typography: {
+    // 히어로 타이틀
+    heroTitle: {
+      fontSize: "1.75rem", // 28px
+      lineHeight: "2.25rem", // 36px
+    },
     // 제목
     title1: {
       fontSize: "1.5rem", // 24px

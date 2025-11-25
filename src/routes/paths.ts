@@ -1,8 +1,8 @@
 export const ROUTES = {
   HOME: "/",
   CHAT: "/chat",
-  MENTOR: "/call",
-  MY: "/select",
+  CALL: "/call",
+  SELECT: "/select",
   HISTORY: "/history",
   MY_GIRL: "/my-girl",
 };

@@ -30,6 +30,6 @@ const Container = styled.header`
 const Title = styled.h1`
   font-size: ${({ theme }) => theme.typography.title1.fontSize};
   line-height: ${({ theme }) => theme.typography.title1.lineHeight};
-  color: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.primary.default};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
 `;
