@@ -49,6 +49,12 @@ const GhostButton = styled.button`
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   text-align: center;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.gray[40]};
+    transform: translateY(-2px);
+  }
 `;
 
 const PrimaryButton = styled.button<{ $accent: string }>`
@@ -63,4 +69,11 @@ const PrimaryButton = styled.button<{ $accent: string }>`
   text-align: center;
   cursor: pointer;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.25);
+    filter: brightness(0.9);
+  }
 `;
