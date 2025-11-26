@@ -1,11 +1,7 @@
 import styled from "@emotion/styled";
-import { ChevronLeft, Heart } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-  getMBTIColor,
-  getAttachmentColor,
-  getEgenTetoColor,
-} from "./components";
+import { ImageSection, ContentSection } from "./components";
 
 // TODO: API 연동 시 타입 정의 분리
 type HistoryItem = {
@@ -62,39 +58,13 @@ const HistoryPage = () => {
       <ListContainer>
         {MOCK_HISTORY_LIST.map((item) => (
           <HistoryCard key={item.id}>
-            <ImageSection>
-              <CardImage src={item.imageUrl} alt={item.name} />
-              <NameOverlay>{item.name}</NameOverlay>
-            </ImageSection>
+            <ImageSection imageUrl={item.imageUrl} name={item.name} />
 
-            <ContentSection>
-              <MessageBar>{item.message}</MessageBar>
-
-              <AffectionContainer>
-                <HeartIcon size={30} fill="#FF6B6B" stroke="#FF6B6B" />
-                <ProgressBar>
-                  <Progress $value={item.affection} />
-                </ProgressBar>
-                <Percentage>{item.affection}%</Percentage>
-              </AffectionContainer>
-
-              <TagList>
-                {item.tags.map((tag, index) => (
-                  <Tag
-                    key={index}
-                    $bgColor={
-                      index === 0
-                        ? getMBTIColor(tag) // 첫 번째: MBTI
-                        : index === 1
-                        ? getAttachmentColor(tag) // 두 번째: 애착유형
-                        : getEgenTetoColor(tag) // 세 번째: 에겐/테토
-                    }
-                  >
-                    {tag}
-                  </Tag>
-                ))}
-              </TagList>
-            </ContentSection>
+            <ContentSection
+              message={item.message}
+              affection={item.affection}
+              tags={item.tags}
+            />
           </HistoryCard>
         ))}
       </ListContainer>
@@ -144,103 +114,6 @@ const HistoryCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing[3]};
-`;
-
-const ImageSection = styled.div`
-  position: relative;
-  width: 100%;
-  height: 200px;
-  border-radius: 16px;
-  overflow: hidden;
-`;
-
-const CardImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-`;
-
-const NameOverlay = styled.span`
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  font-size: 1.5rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text.white};
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-`;
-
-const ContentSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[3]};
-`;
-
-const MessageBar = styled.div`
-  background-color: ${({ theme }) => theme.colors.gray[30]};
-  border-radius: 9999px;
-  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[4]}`};
-  text-align: center;
-  font-size: ${({ theme }) => theme.typography.body2.fontSize};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text.default};
-`;
-
-const AffectionContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[3]};
-  padding: 0 ${({ theme }) => theme.spacing[1]};
-`;
-
-const HeartIcon = styled(Heart)`
-  flex-shrink: 0;
-`;
-
-const ProgressBar = styled.div`
-  flex: 1;
-  height: 12px;
-  background-color: ${({ theme }) => theme.colors.gray[30]};
-  border-radius: 9999px;
-  overflow: hidden;
-`;
-
-const Progress = styled.div<{ $value: number }>`
-  width: ${({ $value }) => $value}%;
-  height: 100%;
-  background: linear-gradient(90deg, #fcbfc8 0%, #ff7c8b 100%);
-  border-radius: 9999px;
-`;
-
-const Percentage = styled.span`
-  font-size: ${({ theme }) => theme.typography.body2.fontSize};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text.default};
-  min-width: 32px;
-  text-align: right;
-`;
-
-const TagList = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing[2]};
-  justify-content: center;
-  margin-top: 4px;
-`;
-
-const Tag = styled.span<{ $bgColor: string }>`
-  flex: 1;
-  background-color: ${({ $bgColor }) => $bgColor};
-  color: ${({ theme }) =>
-    theme.colors.text
-      .default}; // 밝은 배경이라 기본 텍스트 사용 (시안 확인 필요, 일단 기본)
-  padding: ${({ theme }) => theme.spacing[2]};
-  border-radius: 9999px;
-  font-size: ${({ theme }) => theme.typography.body2.fontSize};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 `;
 
 export default HistoryPage;

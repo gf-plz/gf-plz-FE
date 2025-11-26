@@ -1,7 +1,14 @@
 import { AppLayout } from "@/components";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ROUTES } from "./paths";
-import { CallPage, ChatPage, HistoryPage, MainPage, MyGirlPage, SelectPage } from "@/pages";
+import {
+  CallPage,
+  ChatPage,
+  HistoryPage,
+  MainPage,
+  MyGirlPage,
+  SelectPage,
+} from "@/pages";
 
 /**
  * 애플리케이션 라우터 설정
@@ -33,7 +40,7 @@ const router = createBrowserRouter([
   },
   {
     path: ROUTES.SELECT,
-    element: <AppLayout />,
+    element: <AppLayout headerType="none" />,
     children: [
       {
         index: true,
@@ -43,7 +50,7 @@ const router = createBrowserRouter([
   },
   {
     path: ROUTES.HISTORY,
-    element: <AppLayout />,
+    element: <AppLayout headerType="none" />,
     children: [
       {
         index: true,
