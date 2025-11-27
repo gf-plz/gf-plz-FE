@@ -1,14 +1,18 @@
 import { Global, ThemeProvider } from "@emotion/react";
 import { GlobalResetStyle, GlobalTypographyStyle, theme } from "@/styles";
 import { Router } from "@/routes";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/utils/queryClient";
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <Global styles={GlobalResetStyle} />
-      <Global styles={GlobalTypographyStyle} />
-      <Router />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <Global styles={GlobalResetStyle} />
+        <Global styles={GlobalTypographyStyle} />
+        <Router />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
