@@ -13,13 +13,20 @@ export const ButtonGroup = ({ gender, accent }: ButtonGroupProps) => {
 
   return (
     <Container>
-      <GhostButton type="button" onClick={() => navigate(ROUTES.SELECT)}>
+      <GhostButton
+        type="button"
+        onClick={() =>
+          navigate({ pathname: ROUTES.SELECT, search: `?gender=${gender}` })
+        }
+      >
         {gender === "male" ? "다른 남친 선택" : "다른 여친 선택"}
       </GhostButton>
       <PrimaryButton
         type="button"
         $accent={accent}
-        onClick={() => navigate(ROUTES.HISTORY)}
+        onClick={() =>
+          navigate({ pathname: ROUTES.HISTORY, search: `?gender=${gender}` })
+        }
       >
         히스토리
       </PrimaryButton>

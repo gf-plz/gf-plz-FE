@@ -22,6 +22,8 @@ export const SelectCard = ({ imageUrl, name, description }: SelectCardProps) => 
 };
 
 const Container = styled.div`
+  width: 100%;
+  max-width: 450px;
   background-color: ${({ theme }) => theme.colors.gray[0]};
   border-radius: 24px;
   overflow: hidden;

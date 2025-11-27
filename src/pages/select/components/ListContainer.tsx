@@ -32,8 +32,9 @@ const Container = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[5]};
-  padding: ${({ theme }) => `0 ${theme.spacing[5]} ${theme.spacing[8]}`};
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) =>
+    `${theme.spacing[2]} ${theme.spacing[5]} ${theme.spacing[8]}`};
   overflow-y: auto;
 `;
-
