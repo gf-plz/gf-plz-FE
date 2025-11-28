@@ -13,7 +13,10 @@ export const useSelectCharacter = () => {
     onSuccess: (data) => {
       // 최근 선택된 캐릭터 정보 갱신 등 필요한 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.RECENT });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHARACTER_LIST });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHARACTER_LIST({ relation: "yet", gender: "FEMALE" }) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHARACTER_LIST({ relation: "now", gender: "FEMALE" }) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHARACTER_LIST({ relation: "yet", gender: "MALE" }) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHARACTER_LIST({ relation: "now", gender: "MALE" }) });
 
       navigate(
         {
@@ -30,4 +33,3 @@ export const useSelectCharacter = () => {
     },
   });
 };
-
