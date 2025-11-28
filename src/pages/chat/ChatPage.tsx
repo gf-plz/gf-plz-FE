@@ -2,54 +2,44 @@ import styled from "@emotion/styled";
 import { ChatHeader, ChatInput, ChatMessage, type Message } from "./components";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-
-const INITIAL_MESSAGES: Message[] = [
-  {
-    id: "1",
-    text: "안녕하세요! 오늘 날씨가 참 좋네요. 😊",
-    timestamp: "오후 3:00",
-    isMine: false,
-    senderName: "길동",
-    senderProfile: "https://i.pravatar.cc/150?u=gildong",
-  },
-  {
-    id: "2",
-    text: "안녕하세요~",
-    timestamp: "오후 7:20",
-    isMine: true,
-    senderName: "나",
-    senderProfile: "",
-  },
-  {
-    id: "3",
-    text: "오늘 점심은 뭐 드셨나요?",
-    timestamp: "오후 7:20",
-    isMine: false,
-    senderName: "길동",
-    senderProfile: "https://i.pravatar.cc/150?u=gildong",
-  },
-];
+import { useGetSessionMessage } from "./hooks/useGetSessionMessage";
+import type { MessageResponse } from "./types/message";
 
 const ChatPage = () => {
   const { state } = useLocation();
-  const characterName = state?.name || "길동";
-  const characterImage =
-    state?.imageUrl || "https://i.pravatar.cc/150?u=gildong";
+  const characterName = state?.name || "상대방";
+  const characterImage = state?.imageUrl || "";
+  // TODO: 정확한 session id 경로 확인 필요. state.status.statusId를 사용한다고 가정
+  const sessionId = state?.status?.statusId || "";
 
-  const [messages, setMessages] = useState<Message[]>(() => {
-    return INITIAL_MESSAGES.map((msg) => {
-      if (!msg.isMine) {
-        return {
-          ...msg,
-          senderName: characterName,
-          senderProfile: characterImage,
-        };
-      }
-      return msg;
-    });
-  });
+  const { data: sessionMessages = [], isPending } = useGetSessionMessage(sessionId);
+
+  // API 응답을 UI 메시지 포맷으로 변환
+  const formattedMessages: Message[] = sessionMessages.map((msg: MessageResponse) => ({
+    id: msg.messageId.toString(),
+    text: msg.textContent,
+    timestamp: new Date(msg.createdAt).toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }),
+    isMine: msg.senderRole === "USER",
+    senderName: msg.senderRole === "USER" ? "나" : characterName,
+    senderProfile: msg.senderRole === "USER" ? "" : characterImage,
+  }));
+
+  // 로컬에서 추가된 메시지 관리 (API 연동 전 임시)
+  const [localMessages, setLocalMessages] = useState<Message[]>([]);
+
+  // API 메시지와 로컬 메시지 합치기
+  const displayMessages = [...formattedMessages, ...localMessages];
+
+  if (isPending) {
+    return <LoadingContainer>Loading...</LoadingContainer>;
+  }
 
   const handleSendMessage = (text: string) => {
+    // TODO: 메시지 전송 API 연동 필요
     const newMessage: Message = {
       id: Date.now().toString(),
       text,
@@ -62,16 +52,15 @@ const ChatPage = () => {
       senderName: "나",
       senderProfile: "",
     };
-    setMessages((prev) => [...prev, newMessage]);
+    setLocalMessages((prev) => [...prev, newMessage]);
   };
 
   return (
     <PageContainer>
       <ChatHeader name={characterName} imageUrl={characterImage} />
       <ChatContent>
-        <DateDivider>2025년 11월 21일 금요일</DateDivider>
         <MessageList>
-          {messages.map((msg) => (
+          {displayMessages.map((msg) => (
             <ChatMessage key={msg.id} message={msg} />
           ))}
         </MessageList>
@@ -94,6 +83,7 @@ const ChatContent = styled.div`
   flex-direction: column;
   padding: ${({ theme }) => theme.spacing[4]};
   background-color: ${({ theme }) => theme.colors.background};
+  overflow-y: auto;
 `;
 
 const MessageList = styled.div`
@@ -102,14 +92,11 @@ const MessageList = styled.div`
   gap: ${({ theme }) => theme.spacing[3]};
 `;
 
-const DateDivider = styled.div`
-  align-self: center;
-  background-color: ${({ theme }) => theme.colors.gray[20]};
-  color: ${({ theme }) => theme.colors.gray[70]};
-  font-size: ${({ theme }) => theme.typography.body2.fontSize};
-  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
-  border-radius: 12px;
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 `;
 
 export default ChatPage;
