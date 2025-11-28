@@ -1,19 +1,39 @@
 import styled from "@emotion/styled";
+import { differenceInDays, parseISO } from "date-fns";
 
 type NowCardProps = {
   imageUrl: string;
   name: string;
   description: string;
+  startDay: string | null;
   onClick?: () => void;
 };
 
-export const NowCard = ({ imageUrl, name, description, onClick }: NowCardProps) => {
+export const NowCard = ({ imageUrl, name, description, startDay, onClick }: NowCardProps) => {
+  // D-day 계산
+  const getDDay = (startDateStr: string | null) => {
+    if (!startDateStr) return null;
+    
+    const startDate = parseISO(startDateStr);
+    const today = new Date();
+    
+    // 날짜 차이 계산 (시작일 포함 D+1)
+    const diffDays = differenceInDays(today, startDate) + 1;
+    
+    return `D+${diffDays}`;
+  };
+
+  const dDay = getDDay(startDay);
+
   return (
     <Container onClick={onClick}>
       <ImageSection>{imageUrl ? <CardImage src={imageUrl} alt={name} /> : <PlaceholderImage />}</ImageSection>
 
       <ContentSection>
-        <Name>{name}</Name>
+        <NameWrapper>
+          <Name>{name}</Name>
+          {dDay && <DDayBadge>{dDay}</DDayBadge>}
+        </NameWrapper>
         <Description>{description}</Description>
       </ContentSection>
     </Container>
@@ -78,11 +98,29 @@ const ContentSection = styled.div`
   gap: ${({ theme }) => theme.spacing[2]};
 `;
 
+const NameWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
 const Name = styled.h3`
   font-size: ${({ theme }) => theme.typography.title1.fontSize};
   line-height: ${({ theme }) => theme.typography.title1.lineHeight};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.text.default};
+`;
+
+const DDayBadge = styled.div`
+  background-color: #FFD4E9;
+  color: #000;
+  font-size: 0.9rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  padding: 6px 12px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const Description = styled.p`

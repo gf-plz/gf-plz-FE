@@ -23,6 +23,7 @@ export const NowListContainer = ({ items }: NowListContainerProps) => {
           imageUrl={item.imageUrl}
           name={item.name}
           description={item.description}
+          startDay={item.status.startDay}
           onClick={() => handleClick(item)}
         />
       ))}
