@@ -3,6 +3,7 @@ import { useTheme } from "@emotion/react";
 import styled from "@emotion/styled";
 import { useSearchParams } from "react-router-dom";
 import { HeaderSection, ProfileCard, ButtonGroup } from "./components";
+import { useGetRecent } from "./hooks/useGetRecent";
 
 const PROFILE_CONTENT = {
   female: {
@@ -12,8 +13,7 @@ const PROFILE_CONTENT = {
     gender: "FEMALE",
     name: "지은",
     description: "밝고 활발한 성격의 여자친구",
-    imageUrl:
-      "https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?auto=format&fit=crop&w=600&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?auto=format&fit=crop&w=600&q=80",
     imageAlt: "카페 창가에서 미소짓는 여성",
   },
   male: {
@@ -23,8 +23,7 @@ const PROFILE_CONTENT = {
     gender: "MALE",
     name: "도윤",
     description: "다정하고 듬직한 남자친구",
-    imageUrl:
-      "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=600&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=600&q=80",
     imageAlt: "선명한 배경 앞에서 포즈를 취한 남성",
   },
 } as const;
@@ -38,8 +37,12 @@ const MainPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialGender = (searchParams.get("gender") as GenderKey) || "female";
   const [gender, setGender] = useState<GenderKey>(initialGender);
-  const profile = PROFILE_CONTENT[gender];
   const accent = theme.colors.primary[gender];
+  const { data: recent, isPending } = useGetRecent();
+
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
 
   const handleGenderChange = (newGender: GenderKey) => {
     setGender(newGender);
@@ -49,12 +52,8 @@ const MainPage = () => {
   return (
     <PageWrapper>
       <Inner>
-        <HeaderSection
-          gender={gender}
-          setGender={handleGenderChange}
-          profileContent={PROFILE_CONTENT}
-        />
-        <ProfileCard profile={profile} />
+        <HeaderSection gender={gender} setGender={handleGenderChange} profileContent={PROFILE_CONTENT} />
+        <ProfileCard profile={recent} />
         <ButtonGroup gender={gender} accent={accent} />
       </Inner>
     </PageWrapper>

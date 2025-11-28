@@ -1,28 +1,16 @@
 import styled from "@emotion/styled";
 import { SelectCard } from "./SelectCard";
-
-// TODO: API 연동 시 타입 정의 분리
-type SelectItem = {
-  id: number;
-  name: string;
-  description: string;
-  imageUrl: string;
-};
+import type { Character } from "../types/character";
 
 type ListContainerProps = {
-  items: SelectItem[];
+  items: Character[];
 };
 
 export const ListContainer = ({ items }: ListContainerProps) => {
   return (
     <Container>
       {items.map((item) => (
-        <SelectCard
-          key={item.id}
-          imageUrl={item.imageUrl}
-          name={item.name}
-          description={item.description}
-        />
+        <SelectCard key={item.characterId} imageUrl={item.imageUrl} name={item.name} description={item.description} />
       ))}
     </Container>
   );
@@ -34,7 +22,6 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[6]};
-  padding: ${({ theme }) =>
-    `${theme.spacing[2]} ${theme.spacing[5]} ${theme.spacing[8]}`};
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[5]} ${theme.spacing[8]}`};
   overflow-y: auto;
 `;
