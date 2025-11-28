@@ -1,20 +1,14 @@
 import styled from "@emotion/styled";
-import { useNavigate } from "react-router-dom";
-import { ROUTES } from "@/routes";
 import { NowCard } from "./NowCard";
 import type { Character } from "../../select/types/character";
 
 type NowListContainerProps = {
   items: Character[];
+  onCardClick: (character: Character) => void;
+  isExpired?: (character: Character) => boolean;
 };
 
-export const NowListContainer = ({ items }: NowListContainerProps) => {
-  const navigate = useNavigate();
-
-  const handleClick = (character: Character) => {
-    navigate({ pathname: ROUTES.MY_GIRL, search: `?id=${character.characterId}` }, { state: character });
-  };
-
+export const NowListContainer = ({ items, onCardClick, isExpired }: NowListContainerProps) => {
   return (
     <Container>
       {items.map((item) => (
@@ -24,7 +18,8 @@ export const NowListContainer = ({ items }: NowListContainerProps) => {
           name={item.name}
           description={item.description}
           startDay={item.status.startDay}
-          onClick={() => handleClick(item)}
+          isExpired={Boolean(isExpired?.(item))}
+          onClick={() => onCardClick(item)}
         />
       ))}
     </Container>
