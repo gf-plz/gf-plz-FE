@@ -3,7 +3,12 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 
-export const ChatHeader = () => {
+type ChatHeaderProps = {
+  name: string;
+  imageUrl: string;
+};
+
+export const ChatHeader = ({ name, imageUrl }: ChatHeaderProps) => {
   const navigate = useNavigate();
 
   return (
@@ -12,8 +17,8 @@ export const ChatHeader = () => {
         <ArrowLeft size={24} />
       </IconButton>
       <ProfileSection>
-        <Avatar src="https://i.pravatar.cc/150?u=gildong" alt="길동" />
-        <Name>길동</Name>
+        <Avatar src={imageUrl} alt={name} />
+        <Name>{name}</Name>
       </ProfileSection>
     </Container>
   );

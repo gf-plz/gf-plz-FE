@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "@emotion/styled";
 import { ChevronLeft } from "lucide-react";
 import { ROUTES } from "@/routes";
@@ -19,11 +19,15 @@ const MOCK_CHARACTER_DATA: CharacterData = {
   gender: "FEMALE",
   name: "지은",
   description: "밝고 활발한 성격의 여자친구",
-  imageUrl: "https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?auto=format&fit=crop&w=600&q=80",
+  imageUrl:
+    "https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?auto=format&fit=crop&w=600&q=80",
 };
 
 const MyGirlPage = () => {
   const navigate = useNavigate();
+  const { state } = useLocation();
+
+  const characterData = (state as CharacterData) || MOCK_CHARACTER_DATA;
 
   const handleBack = () => {
     navigate(ROUTES.HOME);
@@ -36,12 +40,12 @@ const MyGirlPage = () => {
       </BackButton>
 
       <ProfileImage
-        imageUrl={MOCK_CHARACTER_DATA.imageUrl}
-        name={MOCK_CHARACTER_DATA.name}
-        description={MOCK_CHARACTER_DATA.description}
+        imageUrl={characterData.imageUrl}
+        name={characterData.name}
+        description={characterData.description}
       />
 
-      <MyGirlButton />
+      <MyGirlButton characterData={characterData} />
     </Container>
   );
 };

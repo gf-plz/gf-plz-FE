@@ -3,15 +3,25 @@ import styled from "@emotion/styled";
 import { MessageCircle, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export const MyGirlButton = () => {
+export const MyGirlButton = ({
+  characterData,
+}: {
+  characterData: { characterId: number; name: string; imageUrl: string };
+}) => {
   const navigate = useNavigate();
 
   const handleChat = () => {
-    navigate(ROUTES.CHAT);
+    navigate(
+      { pathname: ROUTES.CHAT, search: `?id=${characterData.characterId}` },
+      { state: characterData }
+    );
   };
 
   const handleCall = () => {
-    navigate(ROUTES.CALL);
+    navigate(
+      { pathname: ROUTES.CALL, search: `?id=${characterData.characterId}` },
+      { state: characterData }
+    );
   };
 
   return (
