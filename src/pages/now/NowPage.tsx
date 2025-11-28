@@ -30,7 +30,10 @@ const NowPage = () => {
     if (isRelationshipExpired(character)) {
       setModalCharacter(character);
     } else {
-      navigate({ pathname: ROUTES.MY_GIRL, search: `?id=${character.characterId}` }, { state: character });
+      navigate(
+        { pathname: ROUTES.MY_GIRL, search: `?id=${character.characterId}` },
+        { state: character }
+      );
     }
   };
 
@@ -66,7 +69,11 @@ const NowPage = () => {
       </Header>
 
       {characterList.length > 0 ? (
-        <NowListContainer items={characterList} onCardClick={handleCardClick} isExpired={isRelationshipExpired} />
+        <NowListContainer
+          items={characterList}
+          onCardClick={handleCardClick}
+          isExpired={isRelationshipExpired}
+        />
       ) : (
         <LoadingMessage>만나고 있는 친구가 없어요.</LoadingMessage>
       )}
@@ -74,6 +81,7 @@ const NowPage = () => {
       {modalCharacter && (
         <BreakActionModal
           characterName={modalCharacter.name}
+          gender={modalCharacter.gender}
           onClose={closeModal}
           onViewResult={handleViewResult}
           onExtend={handleExtend}

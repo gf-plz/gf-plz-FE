@@ -6,11 +6,20 @@ type NowCardProps = {
   name: string;
   description: string;
   startDay: string | null;
+  gender?: "MALE" | "FEMALE";
   onClick?: () => void;
   isExpired?: boolean;
 };
 
-export const NowCard = ({ imageUrl, name, description, startDay, onClick, isExpired }: NowCardProps) => {
+export const NowCard = ({
+  imageUrl,
+  name,
+  description,
+  startDay,
+  gender = "FEMALE",
+  onClick,
+  isExpired,
+}: NowCardProps) => {
   // D-day 계산
   const getDDay = (startDateStr: string | null) => {
     if (!startDateStr) return null;
@@ -28,12 +37,18 @@ export const NowCard = ({ imageUrl, name, description, startDay, onClick, isExpi
 
   return (
     <Container onClick={onClick} isExpired={isExpired}>
-      <ImageSection>{imageUrl ? <CardImage src={imageUrl} alt={name} /> : <PlaceholderImage />}</ImageSection>
+      <ImageSection>
+        {imageUrl ? (
+          <CardImage src={imageUrl} alt={name} />
+        ) : (
+          <PlaceholderImage />
+        )}
+      </ImageSection>
 
       <ContentSection>
         <NameWrapper>
           <Name>{name}</Name>
-          {dDay && <DDayBadge>{dDay}</DDayBadge>}
+          {dDay && <DDayBadge $gender={gender}>{dDay}</DDayBadge>}
         </NameWrapper>
         <Description>{description}</Description>
       </ContentSection>
@@ -44,26 +59,40 @@ export const NowCard = ({ imageUrl, name, description, startDay, onClick, isExpi
 const Container = styled.div<{ isExpired?: boolean }>`
   width: 100%;
   max-width: 450px;
-  background-color: ${({ theme, isExpired }) => (isExpired ? theme.colors.gray[50] : theme.colors.gray[0])};
+  background-color: ${({ theme, isExpired }) =>
+    isExpired ? theme.colors.gray[50] : theme.colors.gray[0]};
   border-radius: 24px;
   overflow: hidden;
-  border: 1px solid ${({ theme, isExpired }) => (isExpired ? theme.colors.gray[40] : theme.colors.gray[30])};
-  box-shadow: ${({ isExpired }) => (isExpired ? "none" : "0 4px 12px rgba(0, 0, 0, 0.05)")};
+  border: 1px solid
+    ${({ theme, isExpired }) =>
+      isExpired ? theme.colors.gray[40] : theme.colors.gray[30]};
+  box-shadow: ${({ isExpired }) =>
+    isExpired ? "none" : "0 4px 12px rgba(0, 0, 0, 0.05)"};
   display: flex;
   flex-direction: column;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
   &:hover {
-    transform: ${(props) => (props.isExpired ? "none" : "translateY(-4px) scale(1.02)")};
-    box-shadow: ${(props) => (props.isExpired ? "none" : "0 12px 24px rgba(0, 0, 0, 0.15)")};
-    border-color: ${(props) => (props.isExpired ? props.theme.colors.gray[40] : props.theme.colors.primary.default)};
-    background-color: ${(props) => (props.isExpired ? props.theme.colors.gray[50] : props.theme.colors.gray[0])};
+    transform: ${(props) =>
+      props.isExpired ? "none" : "translateY(-4px) scale(1.02)"};
+    box-shadow: ${(props) =>
+      props.isExpired ? "none" : "0 12px 24px rgba(0, 0, 0, 0.15)"};
+    border-color: ${(props) =>
+      props.isExpired
+        ? props.theme.colors.gray[40]
+        : props.theme.colors.primary.default};
+    background-color: ${(props) =>
+      props.isExpired
+        ? props.theme.colors.gray[50]
+        : props.theme.colors.gray[0]};
   }
 
   &:active {
-    transform: ${(props) => (props.isExpired ? "none" : "translateY(-2px) scale(1)")};
-    box-shadow: ${(props) => (props.isExpired ? "none" : "0 6px 12px rgba(0, 0, 0, 0.08)")};
+    transform: ${(props) =>
+      props.isExpired ? "none" : "translateY(-2px) scale(1)"};
+    box-shadow: ${(props) =>
+      props.isExpired ? "none" : "0 6px 12px rgba(0, 0, 0, 0.08)"};
   }
 `;
 
@@ -112,8 +141,9 @@ const Name = styled.h3`
   color: ${({ theme }) => theme.colors.text.default};
 `;
 
-const DDayBadge = styled.div`
-  background-color: #ffd4e9;
+const DDayBadge = styled.div<{ $gender: "MALE" | "FEMALE" }>`
+  background-color: ${({ theme, $gender }) =>
+    $gender === "MALE" ? "#D4E9FF" : "#FFD4E9"}; // 남친: 파란색, 여친: 분홍색
   color: #000;
   font-size: 0.9rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
