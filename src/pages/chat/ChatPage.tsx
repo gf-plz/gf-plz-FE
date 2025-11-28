@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useGetSessionMessage } from "./hooks/useGetSessionMessage";
 import { usePostMessage } from "./hooks/usePostMessage";
 import type { MessageResponse } from "./types/message";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatTime } from "@/utils";
 
 const ChatPage = () => {
@@ -17,6 +17,9 @@ const ChatPage = () => {
   const { data: sessionMessages = [], isPending } = useGetSessionMessage(sessionId);
   const { mutate: sendMessage, isPending: isSending } = usePostMessage();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 낙관적 업데이트를 위한 로컬 메시지 상태
+  const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
 
   // API 응답을 UI 메시지 포맷으로 변환
   const formattedMessages: Message[] = sessionMessages.map((msg: MessageResponse) => ({
@@ -33,7 +36,7 @@ const ChatPage = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [formattedMessages]);
+  }, [formattedMessages.length, optimisticMessages.length, isSending]);
 
   if (isPending) {
     return <LoadingContainer>Loading...</LoadingContainer>;
@@ -45,11 +48,40 @@ const ChatPage = () => {
       return;
     }
 
-    sendMessage({
-      characterId,
-      sessionId,
-      message: text,
-    });
+    // 낙관적 업데이트: 전송 즉시 화면에 표시
+    const tempMessage: Message = {
+      id: `temp-${Date.now()}`,
+      text,
+      timestamp: new Date().toLocaleTimeString("ko-KR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
+      isMine: true,
+      senderName: "나",
+      senderProfile: "",
+    };
+    setOptimisticMessages((prev) => [...prev, tempMessage]);
+
+    sendMessage(
+      {
+        characterId,
+        sessionId,
+        message: text,
+      },
+      {
+        onSuccess: () => {
+          // API 성공 시 낙관적 메시지 비우기
+          // 이 시점에 쿼리가 갱신되어 formattedMessages에 새 메시지가 포함됨
+          setOptimisticMessages([]);
+        },
+        onError: () => {
+          // 실패 시 낙관적 메시지 제거 또는 에러 표시 (여기서는 제거)
+          setOptimisticMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
+          alert("메시지 전송에 실패했습니다.");
+        },
+      }
+    );
   };
 
   return (
@@ -60,10 +92,13 @@ const ChatPage = () => {
           {formattedMessages.map((msg) => (
             <ChatMessage key={msg.id} message={msg} />
           ))}
+          {optimisticMessages.map((msg) => (
+            <ChatMessage key={msg.id} message={msg} />
+          ))}
           {isSending && (
-            <LoadingBubble>
-              <div className="dot-flashing"></div>
-            </LoadingBubble>
+            <TypingBubble>
+              <span>작성중...</span>
+            </TypingBubble>
           )}
           <div ref={scrollRef} />
         </MessageList>
@@ -73,6 +108,7 @@ const ChatPage = () => {
   );
 };
 
+// ... styled components
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -102,61 +138,24 @@ const LoadingContainer = styled.div`
   height: 100vh;
 `;
 
-const LoadingBubble = styled.div`
+const TypingBubble = styled.div`
   align-self: flex-start;
   padding: 12px 16px;
   background-color: ${({ theme }) => theme.colors.gray[10]};
   border-radius: 4px 20px 20px 20px;
-  margin-left: 44px; // 프로필 이미지 너비 + gap 고려
+  margin-left: 44px;
+  color: ${({ theme }) => theme.colors.gray[70]};
+  font-size: 0.875rem;
+  animation: fadeIn 0.3s ease;
 
-  .dot-flashing {
-    position: relative;
-    width: 8px;
-    height: 8px;
-    border-radius: 5px;
-    background-color: #9880ff;
-    color: #9880ff;
-    animation: dot-flashing 1s infinite linear alternate;
-    animation-delay: 0.5s;
-
-    &::before,
-    &::after {
-      content: "";
-      display: inline-block;
-      position: absolute;
-      top: 0;
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
     }
-
-    &::before {
-      left: -12px;
-      width: 8px;
-      height: 8px;
-      border-radius: 5px;
-      background-color: #9880ff;
-      color: #9880ff;
-      animation: dot-flashing 1s infinite alternate;
-      animation-delay: 0s;
-    }
-
-    &::after {
-      left: 12px;
-      width: 8px;
-      height: 8px;
-      border-radius: 5px;
-      background-color: #9880ff;
-      color: #9880ff;
-      animation: dot-flashing 1s infinite alternate;
-      animation-delay: 1s;
-    }
-  }
-
-  @keyframes dot-flashing {
-    0% {
-      background-color: #9880ff;
-    }
-    50%,
-    100% {
-      background-color: rgba(152, 128, 255, 0.2);
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 `;
