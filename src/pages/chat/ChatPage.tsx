@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { ChatHeader, ChatInput, ChatMessage, type Message } from "./components";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const INITIAL_MESSAGES: Message[] = [
   {
@@ -16,6 +17,8 @@ const INITIAL_MESSAGES: Message[] = [
     text: "안녕하세요~",
     timestamp: "오후 7:20",
     isMine: true,
+    senderName: "나",
+    senderProfile: "",
   },
   {
     id: "3",
@@ -28,7 +31,23 @@ const INITIAL_MESSAGES: Message[] = [
 ];
 
 const ChatPage = () => {
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+  const { state } = useLocation();
+  const characterName = state?.name || "길동";
+  const characterImage =
+    state?.imageUrl || "https://i.pravatar.cc/150?u=gildong";
+
+  const [messages, setMessages] = useState<Message[]>(() => {
+    return INITIAL_MESSAGES.map((msg) => {
+      if (!msg.isMine) {
+        return {
+          ...msg,
+          senderName: characterName,
+          senderProfile: characterImage,
+        };
+      }
+      return msg;
+    });
+  });
 
   const handleSendMessage = (text: string) => {
     const newMessage: Message = {
@@ -40,13 +59,15 @@ const ChatPage = () => {
         hour12: true,
       }),
       isMine: true,
+      senderName: "나",
+      senderProfile: "",
     };
     setMessages((prev) => [...prev, newMessage]);
   };
 
   return (
     <PageContainer>
-      <ChatHeader />
+      <ChatHeader name={characterName} imageUrl={characterImage} />
       <ChatContent>
         <DateDivider>2025년 11월 21일 금요일</DateDivider>
         <MessageList>

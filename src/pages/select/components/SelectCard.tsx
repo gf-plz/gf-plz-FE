@@ -4,11 +4,17 @@ type SelectCardProps = {
   imageUrl: string;
   name: string;
   description: string;
+  onClick: () => void;
 };
 
-export const SelectCard = ({ imageUrl, name, description }: SelectCardProps) => {
+export const SelectCard = ({
+  imageUrl,
+  name,
+  description,
+  onClick,
+}: SelectCardProps) => {
   return (
-    <Container>
+    <Container onClick={onClick}>
       <ImageSection>
         <CardImage src={imageUrl} alt={name} />
       </ImageSection>

@@ -14,7 +14,7 @@ type CallControlsProps = {
 export const CallControls = ({ isMuted, isSpeakerOn, onToggleMute, onToggleSpeaker }: CallControlsProps) => {
   const navigate = useNavigate();
   const handleEndCall = () => {
-    navigate(ROUTES.MY_GIRL);
+    navigate(-1);
   };
 
   return (
