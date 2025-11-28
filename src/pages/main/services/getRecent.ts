@@ -17,6 +17,7 @@ export const getRecent = async (gender?: "MALE" | "FEMALE") => {
       imageAlt: data.name,
     };
   } catch (error) {
+    console.error(error);
     return null;
   }
 };

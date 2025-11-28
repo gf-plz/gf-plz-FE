@@ -2,7 +2,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
 import { ChevronLeft } from "lucide-react";
 import { ROUTES } from "@/routes";
-import { MyGirlButton, ProfileImage } from "../my-girl/components";
+import { NowListContainer } from "./components";
 import { useGetCharacterList } from "../select/hooks/useGetCharacterList";
 
 const NowPage = () => {
@@ -13,12 +13,11 @@ const NowPage = () => {
   // 성별 대문자 변환
   const apiGender = gender === "male" ? "MALE" : "FEMALE";
 
+  // '만나고 있는' 캐릭터 목록 조회 (relation: "now")
   const { data: characterList = [], isPending } = useGetCharacterList({
     relation: "now",
     gender: apiGender,
   });
-
-  const characterData = characterList[0];
 
   const handleBack = () => {
     navigate(ROUTES.HOME);
@@ -36,17 +35,11 @@ const NowPage = () => {
         </BackButton>
       </Header>
 
-      {characterData ? (
-        <ProfileImage
-          imageUrl={characterData.imageUrl}
-          name={characterData.name}
-          description={characterData.description}
-        />
+      {characterList.length > 0 ? (
+        <NowListContainer items={characterList} />
       ) : (
         <LoadingMessage>만나고 있는 친구가 없어요.</LoadingMessage>
       )}
-
-      <MyGirlButton characterData={characterData} />
     </Container>
   );
 };
@@ -69,21 +62,15 @@ const Header = styled.header`
 `;
 
 const BackButton = styled.button`
-  position: absolute;
-  top: ${({ theme }) => theme.spacing[4]};
-  left: ${({ theme }) => theme.spacing[4]};
-  z-index: 10;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
   color: ${({ theme }) => theme.colors.text.default};
-  background: rgba(255, 255, 255, 0.5);
-  border: none;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  cursor: pointer;
-  backdrop-filter: blur(4px);
+  position: absolute;
+  left: ${({ theme }) => theme.spacing[4]};
 `;
 
 const LoadingMessage = styled.div`

@@ -9,7 +9,7 @@ type UseGetCharacterListParams = {
 
 export const useGetCharacterList = (params?: UseGetCharacterListParams) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.CHARACTER_LIST, params],
+    queryKey: QUERY_KEYS.CHARACTER_LIST(params),
     queryFn: () => getCharacterList(params),
   });
 };
