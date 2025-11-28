@@ -13,23 +13,28 @@ export const ButtonGroup = ({ gender, accent }: ButtonGroupProps) => {
 
   return (
     <Container>
-      <GhostButton
+      <Button
         type="button"
-        onClick={() =>
-          navigate({ pathname: ROUTES.SELECT, search: `?gender=${gender}` })
-        }
+        variant="ghost"
+        onClick={() => navigate({ pathname: ROUTES.NOW, search: `?gender=${gender}` })}
+      >
+        {gender === "male" ? "만나고 있는 남친" : "만나고 있는 여친"}
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => navigate({ pathname: ROUTES.SELECT, search: `?gender=${gender}` })}
       >
         {gender === "male" ? "다른 남친 선택" : "다른 여친 선택"}
-      </GhostButton>
-      <PrimaryButton
+      </Button>
+      <Button
         type="button"
+        variant="primary"
         $accent={accent}
-        onClick={() =>
-          navigate({ pathname: ROUTES.HISTORY, search: `?gender=${gender}` })
-        }
+        onClick={() => navigate({ pathname: ROUTES.HISTORY, search: `?gender=${gender}` })}
       >
         히스토리
-      </PrimaryButton>
+      </Button>
     </Container>
   );
 };
@@ -45,42 +50,38 @@ const Container = styled.div`
   gap: ${({ theme }) => theme.spacing[4]};
 `;
 
-const GhostButton = styled.button`
+type ButtonProps = {
+  variant: "ghost" | "primary";
+  $accent?: string;
+};
+
+const Button = styled.button<ButtonProps>`
   width: 100%;
   border: none;
   border-radius: 20px;
   padding: ${({ theme }) => theme.spacing[5]};
-  background-color: ${({ theme }) => theme.colors.gray[20]};
-  color: ${({ theme }) => theme.colors.text.default};
   font-size: 1.5rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  font-weight: ${({ theme, variant }) =>
+    variant === "primary" ? theme.typography.fontWeight.bold : theme.typography.fontWeight.medium};
   text-align: center;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
 
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.gray[40]};
-    transform: translateY(-2px);
-  }
-`;
-
-const PrimaryButton = styled.button<{ $accent: string }>`
-  width: 100%;
-  border: none;
-  border-radius: 20px;
-  padding: ${({ theme }) => theme.spacing[5]};
-  background-color: ${({ $accent }) => $accent};
-  color: ${({ theme }) => theme.colors.text.white};
-  font-size: 1.5rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  text-align: center;
-  cursor: pointer;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* Ghost variant styles */
+  background-color: ${({ theme, variant, $accent }) => (variant === "primary" ? $accent : theme.colors.gray[20])};
+  color: ${({ theme, variant }) => (variant === "primary" ? theme.colors.text.white : theme.colors.text.default)};
+  box-shadow: ${({ variant }) => (variant === "primary" ? "0 10px 20px rgba(0, 0, 0, 0.12)" : "none")};
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.25);
-    filter: brightness(0.9);
+    ${({ theme, variant }) =>
+      variant === "primary"
+        ? `
+        box-shadow: 0 14px 24px rgba(0, 0, 0, 0.25);
+        filter: brightness(0.9);
+      `
+        : `
+        background-color: ${theme.colors.gray[40]};
+      `}
   }
 `;

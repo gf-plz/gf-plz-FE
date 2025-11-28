@@ -5,4 +5,5 @@ export const ROUTES = {
   SELECT: "/select",
   HISTORY: "/history",
   MY_GIRL: "/my-girl",
+  NOW: "/now",
 };
