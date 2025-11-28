@@ -4,8 +4,8 @@ import { useLocation } from "react-router-dom";
 import { useGetSessionMessage } from "./hooks/useGetSessionMessage";
 import { usePostMessage } from "./hooks/usePostMessage";
 import type { MessageResponse } from "./types/message";
-import { useEffect, useRef, useState } from "react";
-import { formatTime } from "@/utils";
+import { useEffect, useRef, useState, useMemo } from "react";
+import { formatTime, splitMessage } from "@/utils";
 
 const ChatPage = () => {
   const { state } = useLocation();
@@ -17,26 +17,112 @@ const ChatPage = () => {
   const { data: sessionMessages = [], isPending } = useGetSessionMessage(sessionId);
   const { mutate: sendMessage, isPending: isSending } = usePostMessage();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const chatContentRef = useRef<HTMLDivElement>(null);
 
   // 낙관적 업데이트를 위한 로컬 메시지 상태
   const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
 
-  // API 응답을 UI 메시지 포맷으로 변환
-  const formattedMessages: Message[] = sessionMessages.map((msg: MessageResponse) => ({
-    id: msg.messageId.toString(),
-    text: msg.textContent,
-    timestamp: formatTime(msg.createdAt),
-    isMine: msg.senderRole === "USER",
-    senderName: msg.senderRole === "USER" ? "나" : characterName,
-    senderProfile: msg.senderRole === "USER" ? "" : characterImage,
-  }));
+  // API 응답을 UI 메시지 포맷으로 변환하고, ASSISTANT 메시지는 여러 개로 나누기
+  const formattedMessages: Message[] = useMemo(() => {
+    const messages: Message[] = [];
+    let consecutiveGroupIndex = 0; // 연속된 상대방 메시지 그룹 내 인덱스
 
-  // 메시지가 업데이트될 때마다 스크롤 하단으로 이동
+    sessionMessages.forEach((msg: MessageResponse, msgIndex: number) => {
+      const isMine = msg.senderRole === "USER";
+      const prevMsg = msgIndex > 0 ? sessionMessages[msgIndex - 1] : null;
+      const isPrevMine = prevMsg?.senderRole === "USER";
+
+      // 이전 메시지와 같은 발신자이고 연속된 메시지인지 확인
+      const isConsecutive = !isMine && !isPrevMine && prevMsg !== null;
+
+      // 연속된 그룹이 시작되면 인덱스 초기화, 아니면 증가
+      if (!isConsecutive && !isMine) {
+        consecutiveGroupIndex = 0;
+      } else if (isConsecutive) {
+        consecutiveGroupIndex++;
+      }
+
+      const baseMessage = {
+        id: msg.messageId.toString(),
+        timestamp: formatTime(msg.createdAt),
+        isMine,
+        senderName: isMine ? "나" : characterName,
+        senderProfile: isMine ? "" : characterImage,
+        // 연속된 상대방 메시지면 프로필과 이름 숨기기
+        showProfile: !isConsecutive,
+        showName: !isConsecutive,
+        // 연속된 상대방 메시지면 1초씩 지연하여 순차 표시
+        animationDelay: !isMine && consecutiveGroupIndex > 0 ? consecutiveGroupIndex * 1 : 0,
+      };
+
+      // ASSISTANT 메시지이고 길면 여러 개로 나누기
+      if (!isMine && msg.textContent.length > 60) {
+        const chunks = splitMessage(msg.textContent, 60);
+        chunks.forEach((chunk, index) => {
+          messages.push({
+            ...baseMessage,
+            id: `${msg.messageId}-${index}`,
+            text: chunk,
+            // 나눈 메시지 중 첫 번째가 아니면 프로필과 이름 숨기기
+            showProfile: index === 0 ? baseMessage.showProfile : false,
+            showName: index === 0 ? baseMessage.showName : false,
+            // 나눈 메시지도 순차적으로 표시
+            animationDelay: baseMessage.animationDelay + index * 1,
+          });
+          // 나눈 메시지도 그룹 인덱스에 포함
+          if (index > 0) {
+            consecutiveGroupIndex++;
+          }
+        });
+      } else {
+        // USER 메시지이거나 짧은 ASSISTANT 메시지는 그대로
+        messages.push({
+          ...baseMessage,
+          text: msg.textContent,
+        });
+      }
+    });
+
+    return messages;
+  }, [sessionMessages, characterName, characterImage]);
+
+  // 각 메시지의 animationDelay 추출
+  const messageDelays = useMemo(() => {
+    return formattedMessages.map((msg) => msg.animationDelay || 0);
+  }, [formattedMessages]);
+
+  // 각 메시지가 나타날 때마다 스크롤 하단으로 이동
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [formattedMessages.length, optimisticMessages.length, isSending]);
+    const scrollToBottom = () => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollIntoView({ behavior: "smooth" });
+      } else if (chatContentRef.current) {
+        chatContentRef.current.scrollTo({
+          top: chatContentRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    };
+
+    // 즉시 스크롤 (첫 번째 메시지)
+    scrollToBottom();
+
+    // 각 메시지의 animationDelay에 맞춰서 스크롤 트리거
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+    messageDelays.forEach((delay) => {
+      const delayMs = delay * 1000;
+      if (delayMs > 0) {
+        const timeout = setTimeout(() => {
+          scrollToBottom();
+        }, delayMs);
+        timeouts.push(timeout);
+      }
+    });
+
+    return () => {
+      timeouts.forEach((timeout) => clearTimeout(timeout));
+    };
+  }, [formattedMessages.length, optimisticMessages.length, isSending, messageDelays]);
 
   if (isPending) {
     return <LoadingContainer>Loading...</LoadingContainer>;
@@ -87,7 +173,7 @@ const ChatPage = () => {
   return (
     <PageContainer>
       <ChatHeader name={characterName} imageUrl={characterImage} />
-      <ChatContent>
+      <ChatContent ref={chatContentRef}>
         <MessageList>
           {formattedMessages.map((msg) => (
             <ChatMessage key={msg.id} message={msg} />
