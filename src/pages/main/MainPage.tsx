@@ -39,12 +39,12 @@ const MainPage = () => {
   const initialGender = (searchParams.get("gender") as GenderKey) || "female";
   const [gender, setGender] = useState<GenderKey>(initialGender);
   const accent = theme.colors.primary[gender];
-  const { data: recent, isPending } = useGetRecent();
-  const navigate = useNavigate();
 
-  if (isPending) {
-    return <div>Loading...</div>;
-  }
+  // 성별 대문자 변환
+  const apiGender = gender === "male" ? "MALE" : "FEMALE";
+
+  const { data: recent, isPending } = useGetRecent(apiGender);
+  const navigate = useNavigate();
 
   const handleGenderChange = (newGender: GenderKey) => {
     setGender(newGender);
@@ -54,6 +54,9 @@ const MainPage = () => {
   const handleProfileClick = () => {
     if (recent) {
       navigate({ pathname: ROUTES.MY_GIRL, search: `?id=${recent.characterId}` }, { state: recent });
+    } else {
+      // 최근 선택된 캐릭터가 없으면 선택 페이지로 이동
+      navigate({ pathname: ROUTES.SELECT, search: `?gender=${gender}` });
     }
   };
 
@@ -61,7 +64,11 @@ const MainPage = () => {
     <PageWrapper>
       <Inner>
         <HeaderSection gender={gender} setGender={handleGenderChange} profileContent={PROFILE_CONTENT} />
-        <ProfileCard profile={recent} onClick={handleProfileClick} />
+        {isPending ? (
+          <LoadingContainer>Loading...</LoadingContainer>
+        ) : (
+          <ProfileCard profile={recent} onClick={handleProfileClick} />
+        )}
         <ButtonGroup gender={gender} accent={accent} />
       </Inner>
     </PageWrapper>
@@ -83,6 +90,15 @@ const Inner = styled.section`
   width: 100%;
   height: 100%;
   gap: ${({ theme }) => theme.spacing[7]};
+`;
+
+const LoadingContainer = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: ${({ theme }) => theme.colors.text.sub};
+  font-size: 1.2rem;
 `;
 
 export default MainPage;
