@@ -1,28 +1,29 @@
 import styled from "@emotion/styled";
-import { SelectCard } from "./SelectCard";
-import type { Character } from "../types/character";
-import { useSelectCharacter } from "../hooks/useSelectCharacter";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/routes";
+import { NowCard } from "./NowCard";
+import type { Character } from "../../select/types/character";
 
-type ListContainerProps = {
+type NowListContainerProps = {
   items: Character[];
 };
 
-export const ListContainer = ({ items }: ListContainerProps) => {
-  const { mutate: selectCharacter } = useSelectCharacter();
+export const NowListContainer = ({ items }: NowListContainerProps) => {
+  const navigate = useNavigate();
 
-  const handleSelect = (characterId: number) => {
-    selectCharacter(characterId);
+  const handleClick = (character: Character) => {
+    navigate({ pathname: ROUTES.MY_GIRL, search: `?id=${character.characterId}` }, { state: character });
   };
 
   return (
     <Container>
       {items.map((item) => (
-        <SelectCard
+        <NowCard
           key={item.characterId}
           imageUrl={item.imageUrl}
           name={item.name}
           description={item.description}
-          onClick={() => handleSelect(item.characterId)}
+          onClick={() => handleClick(item)}
         />
       ))}
     </Container>
@@ -37,4 +38,5 @@ const Container = styled.div`
   gap: ${({ theme }) => theme.spacing[6]};
   padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[5]} ${theme.spacing[8]}`};
   overflow-y: auto;
+  width: 100%;
 `;
