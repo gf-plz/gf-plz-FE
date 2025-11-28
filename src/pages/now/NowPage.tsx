@@ -20,7 +20,7 @@ const NowPage = () => {
   });
 
   const handleBack = () => {
-    navigate(ROUTES.HOME);
+    navigate({ pathname: ROUTES.HOME, search: `?gender=${gender}` });
   };
 
   if (isPending) {
