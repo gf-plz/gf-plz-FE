@@ -18,6 +18,7 @@ export const NowListContainer = ({ items, onCardClick, isExpired }: NowListConta
           name={item.name}
           description={item.description}
           startDay={item.status.startDay}
+          gender={item.gender}
           isExpired={Boolean(isExpired?.(item))}
           onClick={() => onCardClick(item)}
         />
