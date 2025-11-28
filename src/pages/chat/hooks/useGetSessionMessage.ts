@@ -2,10 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getSessionMessage } from "../services/getSessionMessage";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 
-export const useGetSessionMessage = (sessionId: string) => {
+export const useGetSessionMessage = (sessionId: string | number) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.SESSION_MESSAGE(Number(sessionId))],
-    queryFn: () => getSessionMessage(sessionId),
+    queryKey: QUERY_KEYS.SESSION_MESSAGE(Number(sessionId)),
+    queryFn: () => getSessionMessage(String(sessionId)),
     enabled: !!sessionId,
   });
 };
