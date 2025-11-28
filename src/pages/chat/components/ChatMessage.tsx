@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { keyframes } from "@emotion/react";
 
 export type Message = {
   id: string;
@@ -7,6 +8,9 @@ export type Message = {
   isMine: boolean;
   senderName?: string;
   senderProfile?: string;
+  showProfile?: boolean; // 프로필 이미지 표시 여부
+  showName?: boolean; // 이름 표시 여부
+  animationDelay?: number; // 애니메이션 지연 시간 (초)
 };
 
 type ChatMessageProps = {
@@ -14,15 +18,19 @@ type ChatMessageProps = {
 };
 
 export const ChatMessage = ({ message }: ChatMessageProps) => {
+  const showProfile = message.showProfile !== false; // 기본값 true
+  const showName = message.showName !== false; // 기본값 true
+
   return (
-    <Container isMine={message.isMine}>
-      {!message.isMine && (
+    <Container isMine={message.isMine} animationDelay={message.animationDelay || 0}>
+      {!message.isMine && showProfile && (
         <ProfileWrapper>
           <ProfileImage src={message.senderProfile} alt={message.senderName} />
         </ProfileWrapper>
       )}
+      {!message.isMine && !showProfile && <EmptyProfileSpace />}
       <ContentWrapper isMine={message.isMine}>
-        {!message.isMine && <SenderName>{message.senderName}</SenderName>}
+        {!message.isMine && showName && <SenderName>{message.senderName}</SenderName>}
         <BubbleWrapper isMine={message.isMine}>
           {message.isMine && <Time>{message.timestamp}</Time>}
           <Bubble isMine={message.isMine}>{message.text}</Bubble>
@@ -33,14 +41,33 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
   );
 };
 
-const Container = styled.div<{ isMine: boolean }>`
+const slideIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const Container = styled.div<{ isMine: boolean; animationDelay: number }>`
   display: flex;
   align-items: flex-start;
   gap: ${({ theme }) => theme.spacing[2]};
   justify-content: ${({ isMine }) => (isMine ? "flex-end" : "flex-start")};
+  animation: ${slideIn} 0.3s ease forwards;
+  animation-delay: ${({ animationDelay }) => animationDelay}s;
+  opacity: 0;
 `;
 
 const ProfileWrapper = styled.div`
+  flex-shrink: 0;
+`;
+
+const EmptyProfileSpace = styled.div`
+  width: 36px;
   flex-shrink: 0;
 `;
 

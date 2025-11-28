@@ -67,7 +67,7 @@ const MainPage = () => {
         {isPending ? (
           <LoadingContainer>Loading...</LoadingContainer>
         ) : (
-          <ProfileCard profile={recent} onClick={handleProfileClick} />
+        <ProfileCard profile={recent} onClick={handleProfileClick} />
         )}
         <ButtonGroup gender={gender} accent={accent} />
       </Inner>
