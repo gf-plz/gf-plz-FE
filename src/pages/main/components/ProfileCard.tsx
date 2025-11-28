@@ -13,6 +13,7 @@ export const ProfileCard = ({ profile, onClick }: ProfileCardProps) => {
         {profile?.imageUrl ? (
           <>
             <ProfileImage src={profile.imageUrl} alt={profile.imageAlt} />
+            <GradientOverlay />
             <Description>
               <span>{profile.name}</span>
               <span>{profile.description}</span>
@@ -61,7 +62,22 @@ const ProfileImage = styled.img`
   height: 100%;
   object-fit: cover;
   display: block;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 70%, rgba(0, 0, 0, 0) 100%);
+`;
+
+const GradientOverlay = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 60%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
 `;
 
 const Description = styled.div`
@@ -75,11 +91,12 @@ const Description = styled.div`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   font-size: 1.75rem;
   text-transform: uppercase;
-  z-index: 1;
+  z-index: 2;
 
   span:last-of-type {
     font-size: 1.125rem;
     font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+    opacity: 0.8;
   }
 `;
 

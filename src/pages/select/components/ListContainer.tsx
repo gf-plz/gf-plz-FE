@@ -41,7 +41,6 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   gap: ${({ theme }) => theme.spacing[6]};
-  padding: ${({ theme }) =>
-    `${theme.spacing[2]} ${theme.spacing[5]} ${theme.spacing[8]}`};
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[5]} ${theme.spacing[8]}`};
   overflow-y: auto;
 `;

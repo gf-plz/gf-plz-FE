@@ -16,7 +16,7 @@ export const ButtonGroup = ({ gender, accent }: ButtonGroupProps) => {
       <Button
         type="button"
         variant="ghost"
-        onClick={() => navigate({ pathname: ROUTES.SELECT, search: `?gender=${gender}` })}
+        onClick={() => navigate({ pathname: ROUTES.NOW, search: `?gender=${gender}` })}
       >
         {gender === "male" ? "만나고 있는 남친" : "만나고 있는 여친"}
       </Button>

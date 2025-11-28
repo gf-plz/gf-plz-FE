@@ -9,14 +9,17 @@ const SelectPage = () => {
   const [searchParams] = useSearchParams();
   const gender = (searchParams.get("gender") as "male" | "female") || "female";
 
-  const { data: characterList, isPending } = useGetCharacterList();
+  // 성별 대문자 변환
+  const apiGender = gender === "male" ? "MALE" : "FEMALE";
+
+  const { data: characterList, isPending } = useGetCharacterList({
+    relation: "yet",
+    gender: apiGender,
+  });
 
   if (isPending) {
     return <div>Loading...</div>;
   }
-
-  // 성별에 따라 리스트 필터링 (API 응답은 대문자, URL 쿼리는 소문자)
-  const filteredList = characterList?.filter((item) => item.gender.toLowerCase() === gender);
 
   return (
     <PageWrapper>
@@ -26,7 +29,7 @@ const SelectPage = () => {
         </BackButton>
       </Header>
 
-      <ListContainer items={filteredList ?? []} />
+      <ListContainer items={characterList ?? []} />
     </PageWrapper>
   );
 };

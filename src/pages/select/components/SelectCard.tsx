@@ -4,22 +4,13 @@ type SelectCardProps = {
   imageUrl: string;
   name: string;
   description: string;
+  onClick?: () => void;
 };
 
-export const SelectCard = ({
-  imageUrl,
-  name,
-  description,
-}: SelectCardProps) => {
+export const SelectCard = ({ imageUrl, name, description, onClick }: SelectCardProps) => {
   return (
-    <Container>
-      <ImageSection>
-        {imageUrl ? (
-          <CardImage src={imageUrl} alt={name} />
-        ) : (
-          <PlaceholderImage />
-        )}
-      </ImageSection>
+    <Container onClick={onClick}>
+      <ImageSection>{imageUrl ? <CardImage src={imageUrl} alt={name} /> : <PlaceholderImage />}</ImageSection>
 
       <ContentSection>
         <Name>{name}</Name>
@@ -40,10 +31,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
   &:hover {
     transform: translateY(-4px) scale(1.02);
