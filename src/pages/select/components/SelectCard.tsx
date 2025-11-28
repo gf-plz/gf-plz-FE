@@ -4,19 +4,21 @@ type SelectCardProps = {
   imageUrl: string;
   name: string;
   description: string;
-  onClick: () => void;
 };
 
 export const SelectCard = ({
   imageUrl,
   name,
   description,
-  onClick,
 }: SelectCardProps) => {
   return (
-    <Container onClick={onClick}>
+    <Container>
       <ImageSection>
-        <CardImage src={imageUrl} alt={name} />
+        {imageUrl ? (
+          <CardImage src={imageUrl} alt={name} />
+        ) : (
+          <PlaceholderImage />
+        )}
       </ImageSection>
 
       <ContentSection>
@@ -74,6 +76,12 @@ const CardImage = styled.img`
   display: block;
 `;
 
+const PlaceholderImage = styled.div`
+  width: 100%;
+  height: 100%;
+  background-color: ${({ theme }) => theme.colors.gray[30]};
+`;
+
 const ContentSection = styled.div`
   padding: ${({ theme }) => theme.spacing[4]};
   display: flex;
@@ -95,4 +103,3 @@ const Description = styled.p`
   color: ${({ theme }) => theme.colors.text.sub};
   text-align: center;
 `;
-
