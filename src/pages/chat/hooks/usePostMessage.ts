@@ -13,6 +13,8 @@ export const usePostMessage = () => {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.SESSION_MESSAGE(variables.sessionId),
       });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.RECENT("FEMALE") });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.RECENT("MALE") });
     },
   });
 };

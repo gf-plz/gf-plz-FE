@@ -4,7 +4,7 @@ import { QUERY_KEYS } from "@/constants/queryKeys";
 
 export const useGetRecent = (gender?: "MALE" | "FEMALE") => {
   return useQuery({
-    queryKey: [QUERY_KEYS.RECENT, gender],
+    queryKey: QUERY_KEYS.RECENT(gender),
     queryFn: () => getRecent(gender),
   });
 };

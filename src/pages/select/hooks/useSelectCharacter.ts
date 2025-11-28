@@ -12,7 +12,8 @@ export const useSelectCharacter = () => {
     mutationFn: (characterId: number) => selectCharacter(characterId),
     onSuccess: (data) => {
       // 최근 선택된 캐릭터 정보 갱신 등 필요한 쿼리 무효화
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.RECENT });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.RECENT("FEMALE") });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.RECENT("MALE") });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHARACTER_LIST({ relation: "yet", gender: "FEMALE" }) });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHARACTER_LIST({ relation: "now", gender: "FEMALE" }) });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHARACTER_LIST({ relation: "yet", gender: "MALE" }) });
