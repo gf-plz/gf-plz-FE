@@ -30,7 +30,8 @@ const MyGirlPage = () => {
   const characterData = (state as CharacterData) || MOCK_CHARACTER_DATA;
 
   const handleBack = () => {
-    navigate(ROUTES.HOME);
+    const gender = characterData.gender === "MALE" ? "male" : "female";
+    navigate({ pathname: ROUTES.HOME, search: `?gender=${gender}` });
   };
 
   return (
