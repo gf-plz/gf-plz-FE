@@ -39,21 +39,23 @@ const NowPage = () => {
 
   const closeModal = () => setModalCharacter(null);
 
-  const handleViewResult = () => {
-    closeModal();
-    navigate(ROUTES.HISTORY);
-  };
-
-  const handleExtend = () => {
-    closeModal();
-    navigate(ROUTES.SELECT);
-  };
-
   const apiGender = gender === "male" ? "MALE" : "FEMALE";
 
   const { data: characterList = [], isPending } = useGetCharacterList({
     relation: "now",
     gender: apiGender,
+  });
+
+  // 정렬: 만료되지 않은 항목을 위로, 만료된 항목을 아래로
+  const sortedCharacterList = [...characterList].sort((a, b) => {
+    const aExpired = isRelationshipExpired(a);
+    const bExpired = isRelationshipExpired(b);
+
+    // 만료되지 않은 항목이 위로
+    if (!aExpired && bExpired) return -1;
+    if (aExpired && !bExpired) return 1;
+    // 둘 다 만료되었거나 둘 다 만료되지 않은 경우 원래 순서 유지
+    return 0;
   });
 
   if (isPending) {
@@ -68,9 +70,9 @@ const NowPage = () => {
         </BackButton>
       </Header>
 
-      {characterList.length > 0 ? (
+      {sortedCharacterList.length > 0 ? (
         <NowListContainer
-          items={characterList}
+          items={sortedCharacterList}
           onCardClick={handleCardClick}
           isExpired={isRelationshipExpired}
         />
@@ -80,11 +82,10 @@ const NowPage = () => {
 
       {modalCharacter && (
         <BreakActionModal
+          characterId={modalCharacter.characterId}
           characterName={modalCharacter.name}
           gender={modalCharacter.gender}
           onClose={closeModal}
-          onViewResult={handleViewResult}
-          onExtend={handleExtend}
         />
       )}
     </Container>
