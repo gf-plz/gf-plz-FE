@@ -4,53 +4,56 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ImageSection, ContentSection } from "./components";
 import { useGetHistoryList } from "./hooks/useGetHistoryList";
 import { ROUTES } from "@/routes";
+import { PageStatus } from "@/components/common";
+import type { HistoryCharacter } from "./services/getHistoryList";
 
 const HistoryPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const gender = (searchParams.get("gender") as "male" | "female") || "female";
   const apiGender = gender === "male" ? "MALE" : "FEMALE";
-
   const { data: historyList = [], isPending } = useGetHistoryList(apiGender);
 
-  if (isPending) {
-    return <LoadingContainer>Loading...</LoadingContainer>;
-  }
+  const handleOpenHistoryChat = (character: HistoryCharacter) => {
+    navigate({ pathname: ROUTES.HISTORY_CHAT, search: `?id=${character.characterId}` }, { state: character });
+  };
 
   return (
     <PageWrapper>
       <Header>
-        <BackButton
-          onClick={() =>
-            navigate({ pathname: ROUTES.HOME, search: `?gender=${gender}` })
-          }
-        >
+        <BackButton onClick={() => navigate({ pathname: ROUTES.HOME, search: `?gender=${gender}` })}>
           <ChevronLeft size={32} />
         </BackButton>
       </Header>
 
-      <ListContainer>
-        {historyList.map((item) => (
-          <HistoryCard key={item.characterId}>
-            <ImageSection imageUrl={item.imageUrl} name={item.name} />
+      <PageStatus
+        isLoading={isPending}
+        hasData={historyList.length > 0}
+        loadingText="히스토리를 불러오는 중입니다."
+        emptyText="히스토리가 없습니다."
+      >
+        <ListContainer>
+          {historyList.map((item) => (
+            <HistoryCard key={item.characterId}>
+              <ImageSection imageUrl={item.imageUrl} name={item.name} />
 
-            <ContentSection
-              message={item.aiSummary}
-              affection={item.status.like}
-              tags={[
-                item.mbti,
-                `#${item.attachment}`,
-                item.teto > 50
-                  ? `테토 ${item.teto}%`
-                  : `에겐 ${100 - item.teto}%`,
-              ]}
-            />
-          </HistoryCard>
-        ))}
-        {historyList.length === 0 && (
-          <EmptyMessage>히스토리가 없습니다.</EmptyMessage>
-        )}
-      </ListContainer>
+              <ContentSection
+                message={item.aiSummary}
+                affection={item.status.like}
+                tags={[
+                  item.mbti,
+                  `#${item.attachment}`,
+                  item.teto > 50 ? `테토 ${item.teto}%` : `에겐 ${100 - item.teto}%`,
+                ]}
+              />
+
+              <ActionRow>
+                <HistoryChatButton onClick={() => handleOpenHistoryChat(item)}>히스토리 채팅 보기</HistoryChatButton>
+              </ActionRow>
+            </HistoryCard>
+          ))}
+        </ListContainer>
+      </PageStatus>
     </PageWrapper>
   );
 };
@@ -99,22 +102,25 @@ const HistoryCard = styled.div`
   gap: ${({ theme }) => theme.spacing[3]};
 `;
 
-const LoadingContainer = styled.div`
+const ActionRow = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 1.2rem;
-  color: ${({ theme }) => theme.colors.text.sub};
+  justify-content: flex-end;
 `;
 
-const EmptyMessage = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  font-size: 1.1rem;
-  color: ${({ theme }) => theme.colors.text.sub};
+const HistoryChatButton = styled.button`
+  background: ${({ theme }) => theme.colors.primary.default};
+  color: ${({ theme }) => theme.colors.text.white};
+  border: none;
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[4]}`};
+  border-radius: 999px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  }
 `;
 
 export default HistoryPage;

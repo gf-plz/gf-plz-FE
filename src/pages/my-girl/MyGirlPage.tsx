@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import { ChevronLeft } from "lucide-react";
 import { ROUTES } from "@/routes";
 import { MyGirlButton, ProfileImage } from "./components";
+import { addImageSuffix } from "@/utils/image";
 
 // Mock 데이터 타입
 type CharacterData = {
@@ -19,8 +20,7 @@ const MOCK_CHARACTER_DATA: CharacterData = {
   gender: "FEMALE",
   name: "지은",
   description: "밝고 활발한 성격의 여자친구",
-  imageUrl:
-    "https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?auto=format&fit=crop&w=600&q=80",
+  imageUrl: "https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?auto=format&fit=crop&w=600&q=80",
 };
 
 const MyGirlPage = () => {
@@ -34,6 +34,8 @@ const MyGirlPage = () => {
     navigate({ pathname: ROUTES.HOME, search: `?gender=${gender}` });
   };
 
+  const imageUrlWithSuffix = addImageSuffix(characterData.imageUrl);
+
   return (
     <Container>
       <BackButton onClick={handleBack}>
@@ -41,7 +43,7 @@ const MyGirlPage = () => {
       </BackButton>
 
       <ProfileImage
-        imageUrl={characterData.imageUrl}
+        imageUrl={imageUrlWithSuffix || ""}
         name={characterData.name}
         description={characterData.description}
       />
@@ -59,6 +61,7 @@ const Container = styled.div`
   height: 100dvh;
   overflow: hidden;
   background-color: ${({ theme }) => theme.colors.background};
+  position: relative;
 `;
 
 const BackButton = styled.button`

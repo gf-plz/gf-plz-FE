@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ListContainer } from "./components";
 import { useGetCharacterList } from "./hooks/useGetCharacterList";
+import { PageStatus } from "@/components/common";
 
 const SelectPage = () => {
   const navigate = useNavigate();
@@ -17,10 +18,6 @@ const SelectPage = () => {
     gender: apiGender,
   });
 
-  if (isPending) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <PageWrapper>
       <Header>
@@ -29,7 +26,14 @@ const SelectPage = () => {
         </BackButton>
       </Header>
 
-      <ListContainer items={characterList ?? []} />
+      <PageStatus
+        isLoading={isPending}
+        hasData={(characterList?.length ?? 0) > 0}
+        loadingText="캐릭터 목록을 불러오는 중입니다."
+        emptyText="새로운 캐릭터가 없습니다."
+      >
+        <ListContainer items={characterList ?? []} />
+      </PageStatus>
     </PageWrapper>
   );
 };
