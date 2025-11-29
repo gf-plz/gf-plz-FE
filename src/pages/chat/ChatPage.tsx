@@ -7,13 +7,14 @@ import { useGetCharacterSession } from "./hooks/useGetCharacterSession";
 import type { MessageResponse } from "./types/message";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { formatTime, splitMessage } from "@/utils";
+import { addImageSuffix } from "@/utils/image";
 import { StatusSpinner, StatusMessage } from "@/components/common";
 
 const ChatPage = () => {
   const { state } = useLocation();
   const [searchParams] = useSearchParams();
   const characterName = state?.name || "상대방";
-  const characterImage = state?.imageUrl || "";
+  const characterImage = addImageSuffix(state?.imageUrl) ?? "";
   const queryCharacterId = searchParams.get("id");
   const parsedQueryCharacterId = queryCharacterId ? Number(queryCharacterId) : NaN;
   const characterId =

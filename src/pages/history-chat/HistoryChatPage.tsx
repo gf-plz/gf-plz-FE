@@ -6,6 +6,7 @@ import { useGetCharacterSession } from "../chat/hooks/useGetCharacterSession";
 import { useGetSessionMessage } from "../chat/hooks/useGetSessionMessage";
 import type { MessageResponse } from "../chat/types/message";
 import { formatTime, splitMessage } from "@/utils";
+import { addImageSuffix } from "@/utils/image";
 import { StatusSpinner, StatusMessage } from "@/components/common";
 import { ROUTES } from "@/routes";
 import type { HistoryCharacter } from "../history/services/getHistoryList";
@@ -29,7 +30,7 @@ const HistoryChatPage = () => {
   }, [characterId, navigate]);
 
   const characterName = historyCharacter?.name || "히스토리";
-  const characterImage = historyCharacter?.imageUrl || "";
+  const characterImage = addImageSuffix(historyCharacter?.imageUrl) ?? "";
 
   const fallbackSessionId = historyCharacter?.status?.statusId;
   const normalizedFallbackSessionId =
