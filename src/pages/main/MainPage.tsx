@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "@emotion/react";
 import styled from "@emotion/styled";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -39,6 +39,14 @@ const MainPage = () => {
   const initialGender = (searchParams.get("gender") as GenderKey) || "female";
   const [gender, setGender] = useState<GenderKey>(initialGender);
   const accent = theme.colors.primary[gender];
+
+  // URL 파라미터가 변경되면 상태 업데이트 (뒤로가기 대응)
+  useEffect(() => {
+    const paramGender = searchParams.get("gender") as GenderKey;
+    if (paramGender && paramGender !== gender) {
+      setGender(paramGender);
+    }
+  }, [searchParams]);
 
   // 성별 대문자 변환
   const apiGender = gender === "male" ? "MALE" : "FEMALE";
