@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/queryKeys";
 
 type UseCallAudioParams = {
   characterId: number;
@@ -28,6 +30,7 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
   const isPlayingRef = useRef<boolean>(false);
   const isMountedRef = useRef<boolean>(true);
   const isPlaybackStoppingRef = useRef<boolean>(false);
+  const queryClient = useQueryClient();
 
   const tryRestartRecording = useCallback(() => {
     const recorder = mediaRecorderRef.current;
@@ -351,7 +354,13 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
 
     audioChunksRef.current = [];
     setIsRecording(false);
-  }, []);
+    queryClient.invalidateQueries({
+      queryKey: QUERY_KEYS.RECENT("FEMALE"),
+    });
+    queryClient.invalidateQueries({
+      queryKey: QUERY_KEYS.RECENT("MALE"),
+    });
+  }, [queryClient]);
 
   // 음소거 상태에 따라 녹음 제어
   useEffect(() => {
