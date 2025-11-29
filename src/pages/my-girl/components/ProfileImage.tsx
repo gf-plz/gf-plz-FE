@@ -66,5 +66,6 @@ const Description = styled.p`
   line-height: ${({ theme }) => theme.typography.subtitle1.lineHeight};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   color: ${({ theme }) => theme.colors.text.default};
+  padding: 0 24px 0 0;
   margin: 0;
 `;
