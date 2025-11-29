@@ -133,6 +133,11 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
         return;
       }
 
+      if (!sessionId) {
+        console.warn("[Audio] sessionId가 없어 전송을 건너뜁니다.");
+        return;
+      }
+
       console.log("[Audio] API 요청 시작");
       isProcessingRef.current = true;
       setIsProcessing(true);

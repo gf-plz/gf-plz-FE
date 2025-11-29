@@ -1,20 +1,33 @@
 import styled from "@emotion/styled";
 import { ChatHeader, ChatInput, ChatMessage, type Message } from "./components";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { useGetSessionMessage } from "./hooks/useGetSessionMessage";
 import { usePostMessage } from "./hooks/usePostMessage";
+import { useGetCharacterSession } from "./hooks/useGetCharacterSession";
 import type { MessageResponse } from "./types/message";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { formatTime, splitMessage } from "@/utils";
+import { StatusSpinner, StatusMessage } from "@/components/common";
 
 const ChatPage = () => {
   const { state } = useLocation();
+  const [searchParams] = useSearchParams();
   const characterName = state?.name || "상대방";
   const characterImage = state?.imageUrl || "";
-  const characterId = state?.characterId;
-  const sessionId = state?.status?.statusId || "";
+  const queryCharacterId = searchParams.get("id");
+  const parsedQueryCharacterId = queryCharacterId ? Number(queryCharacterId) : NaN;
+  const characterId =
+    state?.characterId ??
+    (Number.isFinite(parsedQueryCharacterId) && parsedQueryCharacterId > 0 ? parsedQueryCharacterId : undefined);
 
-  const { data: sessionMessages = [], isPending } = useGetSessionMessage(sessionId);
+  const sessionIdFromState = state?.status?.statusId ?? state?.sessionId ?? undefined;
+  const fallbackSessionId = sessionIdFromState !== undefined ? Number(sessionIdFromState) : undefined;
+  const normalizedFallbackSessionId = Number.isFinite(fallbackSessionId) ? fallbackSessionId : undefined;
+
+  const { data: characterSession, isPending: isSessionLoading } = useGetCharacterSession(characterId);
+
+  const resolvedSessionId = characterSession?.sessionId ?? normalizedFallbackSessionId;
+  const { data: sessionMessages = [], isPending: isMessagesLoading } = useGetSessionMessage(resolvedSessionId);
   const { mutate: sendMessage, isPending: isSending } = usePostMessage();
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatContentRef = useRef<HTMLDivElement>(null);
@@ -124,12 +137,21 @@ const ChatPage = () => {
     };
   }, [formattedMessages.length, optimisticMessages.length, isSending, messageDelays]);
 
-  if (isPending) {
-    return <LoadingContainer>Loading...</LoadingContainer>;
+  const isChatLoading = !resolvedSessionId || isMessagesLoading || isSessionLoading;
+  if (isChatLoading) {
+    return (
+      <PageContainer>
+        <ChatHeader name={characterName} imageUrl={characterImage} />
+        <LoadingContainer>
+          <StatusSpinner />
+          <StatusMessage>대화 데이터를 불러오는 중입니다.</StatusMessage>
+        </LoadingContainer>
+      </PageContainer>
+    );
   }
 
   const handleSendMessage = (text: string) => {
-    if (!characterId || !sessionId) {
+    if (!characterId || !resolvedSessionId) {
       console.error("Missing characterId or sessionId");
       return;
     }
@@ -152,7 +174,7 @@ const ChatPage = () => {
     sendMessage(
       {
         characterId,
-        sessionId,
+        sessionId: resolvedSessionId,
         message: text,
       },
       {
@@ -170,6 +192,8 @@ const ChatPage = () => {
     );
   };
 
+  const showEmptyMessage = formattedMessages.length === 0 && optimisticMessages.length === 0 && !isSending;
+
   return (
     <PageContainer>
       <ChatHeader name={characterName} imageUrl={characterImage} />
@@ -181,6 +205,7 @@ const ChatPage = () => {
           {optimisticMessages.map((msg) => (
             <ChatMessage key={msg.id} message={msg} />
           ))}
+          {showEmptyMessage && <ChatEmptyMessage>아직 대화 기록이 없습니다.</ChatEmptyMessage>}
           {isSending && (
             <TypingBubble>
               <span>작성중...</span>
@@ -219,6 +244,8 @@ const MessageList = styled.div`
 
 const LoadingContainer = styled.div`
   display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[2]};
   justify-content: center;
   align-items: center;
   height: 100vh;
@@ -244,6 +271,11 @@ const TypingBubble = styled.div`
       transform: translateY(0);
     }
   }
+`;
+
+const ChatEmptyMessage = styled(StatusMessage)`
+  width: 100%;
+  padding: ${({ theme }) => theme.spacing[4]} 0;
 `;
 
 export default ChatPage;

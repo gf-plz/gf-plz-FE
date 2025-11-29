@@ -4,53 +4,47 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ImageSection, ContentSection } from "./components";
 import { useGetHistoryList } from "./hooks/useGetHistoryList";
 import { ROUTES } from "@/routes";
+import { PageStatus } from "@/components/common";
 
 const HistoryPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const gender = (searchParams.get("gender") as "male" | "female") || "female";
   const apiGender = gender === "male" ? "MALE" : "FEMALE";
-
   const { data: historyList = [], isPending } = useGetHistoryList(apiGender);
-
-  if (isPending) {
-    return <LoadingContainer>Loading...</LoadingContainer>;
-  }
 
   return (
     <PageWrapper>
       <Header>
-        <BackButton
-          onClick={() =>
-            navigate({ pathname: ROUTES.HOME, search: `?gender=${gender}` })
-          }
-        >
+        <BackButton onClick={() => navigate({ pathname: ROUTES.HOME, search: `?gender=${gender}` })}>
           <ChevronLeft size={32} />
         </BackButton>
       </Header>
 
-      <ListContainer>
-        {historyList.map((item) => (
-          <HistoryCard key={item.characterId}>
-            <ImageSection imageUrl={item.imageUrl} name={item.name} />
+      <PageStatus
+        isLoading={isPending}
+        hasData={historyList.length > 0}
+        loadingText="히스토리를 불러오는 중입니다."
+        emptyText="히스토리가 없습니다."
+      >
+        <ListContainer>
+          {historyList.map((item) => (
+            <HistoryCard key={item.characterId}>
+              <ImageSection imageUrl={item.imageUrl} name={item.name} />
 
-            <ContentSection
-              message={item.aiSummary}
-              affection={item.status.like}
-              tags={[
-                item.mbti,
-                `#${item.attachment}`,
-                item.teto > 50
-                  ? `테토 ${item.teto}%`
-                  : `에겐 ${100 - item.teto}%`,
-              ]}
-            />
-          </HistoryCard>
-        ))}
-        {historyList.length === 0 && (
-          <EmptyMessage>히스토리가 없습니다.</EmptyMessage>
-        )}
-      </ListContainer>
+              <ContentSection
+                message={item.aiSummary}
+                affection={item.status.like}
+                tags={[
+                  item.mbti,
+                  `#${item.attachment}`,
+                  item.teto > 50 ? `테토 ${item.teto}%` : `에겐 ${100 - item.teto}%`,
+                ]}
+              />
+            </HistoryCard>
+          ))}
+        </ListContainer>
+      </PageStatus>
     </PageWrapper>
   );
 };
@@ -97,24 +91,6 @@ const HistoryCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing[3]};
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 1.2rem;
-  color: ${({ theme }) => theme.colors.text.sub};
-`;
-
-const EmptyMessage = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  font-size: 1.1rem;
-  color: ${({ theme }) => theme.colors.text.sub};
 `;
 
 export default HistoryPage;

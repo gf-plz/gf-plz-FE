@@ -7,6 +7,7 @@ import { ROUTES } from "@/routes";
 import { NowListContainer } from "./components";
 import { BreakActionModal } from "./components/BreakActionModal";
 import { useGetCharacterList } from "../select/hooks/useGetCharacterList";
+import { PageStatus } from "@/components/common";
 import type { Character } from "../select/types/character";
 
 const NowPage = () => {
@@ -58,10 +59,6 @@ const NowPage = () => {
     return 0;
   });
 
-  if (isPending) {
-    return <LoadingMessage>Loading...</LoadingMessage>;
-  }
-
   return (
     <Container>
       <Header>
@@ -70,15 +67,18 @@ const NowPage = () => {
         </BackButton>
       </Header>
 
-      {sortedCharacterList.length > 0 ? (
+      <PageStatus
+        isLoading={isPending}
+        hasData={sortedCharacterList.length > 0}
+        loadingText="만나고 있는 친구 목록을 확인하고 있어요."
+        emptyText="만나고 있는 친구가 없습니다."
+      >
         <NowListContainer
           items={sortedCharacterList}
           onCardClick={handleCardClick}
           isExpired={isRelationshipExpired}
         />
-      ) : (
-        <LoadingMessage>만나고 있는 친구가 없어요.</LoadingMessage>
-      )}
+      </PageStatus>
 
       {modalCharacter && (
         <BreakActionModal
@@ -119,15 +119,6 @@ const BackButton = styled.button`
   color: ${({ theme }) => theme.colors.text.default};
   position: absolute;
   left: ${({ theme }) => theme.spacing[4]};
-`;
-
-const LoadingMessage = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 1.2rem;
-  color: ${({ theme }) => theme.colors.text.sub};
 `;
 
 export default NowPage;
