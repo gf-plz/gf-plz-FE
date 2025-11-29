@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ROUTES } from "@/routes";
 import { extendRelationship } from "../services/extendRelationship";
+import { moveToHistory } from "../services/moveToHistory";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 
 type BreakActionModalProps = {
@@ -35,12 +36,34 @@ export const BreakActionModal = ({
     },
   });
 
+  const moveToHistoryMutation = useMutation({
+    mutationFn: () => moveToHistory(characterId),
+    onSuccess: () => {
+      // 현재 캐릭터 리스트와 히스토리 리스트 쿼리 무효화
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.CHARACTER_LIST({ relation: "now", gender }),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["history", gender],
+      });
+      // 모든 캐릭터 리스트 쿼리도 무효화 (relation 파라미터 무관)
+      queryClient.invalidateQueries({
+        queryKey: ["characterList"],
+      });
+      onClose();
+      navigate({
+        pathname: ROUTES.HISTORY,
+        search: `?gender=${gender === "MALE" ? "male" : "female"}`,
+      });
+    },
+    onError: (error) => {
+      console.error("히스토리로 이동 실패:", error);
+      // 에러가 발생해도 사용자에게 알림을 주거나 다른 처리를 할 수 있음
+    },
+  });
+
   const handleViewResult = () => {
-    onClose();
-    navigate({
-      pathname: ROUTES.HISTORY,
-      search: `?gender=${gender === "MALE" ? "male" : "female"}`,
-    });
+    moveToHistoryMutation.mutate();
   };
 
   const handleExtend = () => {
@@ -60,8 +83,9 @@ export const BreakActionModal = ({
             type="button"
             onClick={handleViewResult}
             $accent={accent}
+            disabled={moveToHistoryMutation.isPending}
           >
-            결과보기
+            {moveToHistoryMutation.isPending ? "이동 중..." : "결과보기"}
           </ResultButton>
           <ExtendButton
             type="button"
