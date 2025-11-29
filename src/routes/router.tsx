@@ -1,7 +1,7 @@
 import { AppLayout } from "@/components";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ROUTES } from "./paths";
-import { CallPage, ChatPage, HistoryPage, MainPage, MyGirlPage, NowPage, SelectPage } from "@/pages";
+import { CallPage, ChatPage, HistoryPage, HistoryChatPage, MainPage, MyGirlPage, NowPage, SelectPage } from "@/pages";
 
 /**
  * 애플리케이션 라우터 설정
@@ -52,6 +52,16 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HistoryPage />,
+      },
+    ],
+  },
+  {
+    path: ROUTES.HISTORY_CHAT,
+    element: <AppLayout headerType="none" />,
+    children: [
+      {
+        index: true,
+        element: <HistoryChatPage />,
       },
     ],
   },
