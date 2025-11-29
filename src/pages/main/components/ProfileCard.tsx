@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import type { ProfileContent, GenderKey } from "../MainPage";
 
 type ProfileCardProps = {
-  profile: ProfileContent[GenderKey];
+  profile?: ProfileContent[GenderKey] | null;
   onClick?: () => void;
 };
 

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useTheme } from "@emotion/react";
 import styled from "@emotion/styled";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -36,17 +35,8 @@ export type ProfileContent = typeof PROFILE_CONTENT;
 const MainPage = () => {
   const theme = useTheme();
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialGender = (searchParams.get("gender") as GenderKey) || "female";
-  const [gender, setGender] = useState<GenderKey>(initialGender);
+  const gender = (searchParams.get("gender") as GenderKey) || "female";
   const accent = theme.colors.primary[gender];
-
-  // URL 파라미터가 변경되면 상태 업데이트 (뒤로가기 대응)
-  useEffect(() => {
-    const paramGender = searchParams.get("gender") as GenderKey;
-    if (paramGender && paramGender !== gender) {
-      setGender(paramGender);
-    }
-  }, [searchParams]);
 
   // 성별 대문자 변환
   const apiGender = gender === "male" ? "MALE" : "FEMALE";
@@ -55,7 +45,6 @@ const MainPage = () => {
   const navigate = useNavigate();
 
   const handleGenderChange = (newGender: GenderKey) => {
-    setGender(newGender);
     setSearchParams({ gender: newGender });
   };
 
@@ -75,7 +64,7 @@ const MainPage = () => {
         {isPending ? (
           <LoadingContainer>Loading...</LoadingContainer>
         ) : (
-        <ProfileCard profile={recent} onClick={handleProfileClick} />
+          <ProfileCard profile={recent} onClick={handleProfileClick} />
         )}
         <ButtonGroup gender={gender} accent={accent} />
       </Inner>
