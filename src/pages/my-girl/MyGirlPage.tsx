@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import { ChevronLeft } from "lucide-react";
 import { ROUTES } from "@/routes";
 import { MyGirlButton, ProfileImage } from "./components";
+import { addImageSuffix } from "@/utils/image";
 
 // Mock 데이터 타입
 type CharacterData = {
@@ -33,6 +34,8 @@ const MyGirlPage = () => {
     navigate({ pathname: ROUTES.HOME, search: `?gender=${gender}` });
   };
 
+  const imageUrlWithSuffix = addImageSuffix(characterData.imageUrl);
+
   return (
     <Container>
       <BackButton onClick={handleBack}>
@@ -40,7 +43,7 @@ const MyGirlPage = () => {
       </BackButton>
 
       <ProfileImage
-        imageUrl={characterData.imageUrl}
+        imageUrl={imageUrlWithSuffix || ""}
         name={characterData.name}
         description={characterData.description}
       />
