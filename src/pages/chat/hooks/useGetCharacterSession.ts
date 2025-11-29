@@ -16,3 +16,4 @@ export const useGetCharacterSession = (characterId?: number) => {
     enabled,
   });
 };
+

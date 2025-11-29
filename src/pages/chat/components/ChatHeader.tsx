@@ -17,7 +17,7 @@ export const ChatHeader = ({ name, imageUrl }: ChatHeaderProps) => {
         <ArrowLeft size={24} />
       </IconButton>
       <ProfileSection>
-        <Avatar src={imageUrl} alt={name} />
+        <Avatar src={imageUrl} alt="" />
         <Name>{name}</Name>
       </ProfileSection>
     </Container>

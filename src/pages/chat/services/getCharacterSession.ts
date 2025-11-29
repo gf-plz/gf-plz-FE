@@ -9,3 +9,4 @@ export const getCharacterSession = async (characterId: number): Promise<Characte
   const response = await apiClient.get(`/api/characters/${characterId}/session`);
   return response.data;
 };
+

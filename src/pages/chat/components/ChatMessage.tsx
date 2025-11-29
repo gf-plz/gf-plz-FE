@@ -25,7 +25,7 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
     <Container isMine={message.isMine} animationDelay={message.animationDelay || 0}>
       {!message.isMine && showProfile && (
         <ProfileWrapper>
-          <ProfileImage src={message.senderProfile} alt={message.senderName} />
+          <ProfileImage src={message.senderProfile} alt="" />
         </ProfileWrapper>
       )}
       {!message.isMine && !showProfile && <EmptyProfileSpace />}

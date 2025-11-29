@@ -5,6 +5,7 @@ import { ImageSection, ContentSection } from "./components";
 import { useGetHistoryList } from "./hooks/useGetHistoryList";
 import { ROUTES } from "@/routes";
 import { PageStatus } from "@/components/common";
+import type { HistoryCharacter } from "./services/getHistoryList";
 
 const HistoryPage = () => {
   const navigate = useNavigate();
@@ -12,6 +13,10 @@ const HistoryPage = () => {
   const gender = (searchParams.get("gender") as "male" | "female") || "female";
   const apiGender = gender === "male" ? "MALE" : "FEMALE";
   const { data: historyList = [], isPending } = useGetHistoryList(apiGender);
+
+  const handleOpenHistoryChat = (character: HistoryCharacter) => {
+    navigate({ pathname: ROUTES.HISTORY_CHAT, search: `?id=${character.characterId}` }, { state: character });
+  };
 
   return (
     <PageWrapper>
@@ -41,6 +46,10 @@ const HistoryPage = () => {
                   item.teto > 50 ? `테토 ${item.teto}%` : `에겐 ${100 - item.teto}%`,
                 ]}
               />
+
+              <ActionRow>
+                <HistoryChatButton onClick={() => handleOpenHistoryChat(item)}>히스토리 채팅 보기</HistoryChatButton>
+              </ActionRow>
             </HistoryCard>
           ))}
         </ListContainer>
@@ -91,6 +100,27 @@ const HistoryCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing[3]};
+`;
+
+const ActionRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const HistoryChatButton = styled.button`
+  background: ${({ theme }) => theme.colors.primary.default};
+  color: ${({ theme }) => theme.colors.text.white};
+  border: none;
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[4]}`};
+  border-radius: 999px;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  }
 `;
 
 export default HistoryPage;
