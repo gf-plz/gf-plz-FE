@@ -5,7 +5,13 @@ export const EGEN_TETO_COLORS = {
 
 export type EgenTetoType = keyof typeof EGEN_TETO_COLORS;
 
-export const getEgenTetoColor = (type: string) => {
-  return EGEN_TETO_COLORS[type as EgenTetoType] || "#eeeff1"; // 기본값 회색
+export const getEgenTetoColor = (tag: string) => {
+  // "테토 75%"와 같은 문자열에서 시작 부분이 일치하는지 확인
+  if (tag.startsWith("에겐")) {
+    return EGEN_TETO_COLORS["에겐"];
+  }
+  if (tag.startsWith("테토")) {
+    return EGEN_TETO_COLORS["테토"];
+  }
+  return "#eeeff1"; // 기본값 회색
 };
-
