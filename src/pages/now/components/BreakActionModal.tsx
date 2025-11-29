@@ -1,23 +1,51 @@
 import styled from "@emotion/styled";
 import { useTheme } from "@emotion/react";
+import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ROUTES } from "@/routes";
+import { extendRelationship } from "../services/extendRelationship";
+import { QUERY_KEYS } from "@/constants/queryKeys";
 
 type BreakActionModalProps = {
+  characterId: number;
   characterName: string;
   gender: "MALE" | "FEMALE";
   onClose: () => void;
-  onViewResult: () => void;
-  onExtend: () => void;
 };
 
 export const BreakActionModal = ({
+  characterId,
   characterName,
   gender,
   onClose,
-  onViewResult,
-  onExtend,
 }: BreakActionModalProps) => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const accent = theme.colors.primary[gender === "MALE" ? "male" : "female"];
+
+  const extendMutation = useMutation({
+    mutationFn: () => extendRelationship(characterId),
+    onSuccess: () => {
+      // 캐릭터 리스트 쿼리 무효화하여 데이터 새로고침
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.CHARACTER_LIST({ relation: "now", gender }),
+      });
+      onClose();
+    },
+  });
+
+  const handleViewResult = () => {
+    onClose();
+    navigate({
+      pathname: ROUTES.HISTORY,
+      search: `?gender=${gender === "MALE" ? "male" : "female"}`,
+    });
+  };
+
+  const handleExtend = () => {
+    extendMutation.mutate();
+  };
 
   return (
     <Backdrop>
@@ -28,11 +56,20 @@ export const BreakActionModal = ({
           연장을 요청할 수 있어요.
         </Body>
         <ButtonRow>
-          <ResultButton type="button" onClick={onViewResult} $accent={accent}>
+          <ResultButton
+            type="button"
+            onClick={handleViewResult}
+            $accent={accent}
+          >
             결과보기
           </ResultButton>
-          <ExtendButton type="button" onClick={onExtend} $accent={accent}>
-            연장하기
+          <ExtendButton
+            type="button"
+            onClick={handleExtend}
+            $accent={accent}
+            disabled={extendMutation.isPending}
+          >
+            {extendMutation.isPending ? "연장 중..." : "연장하기"}
           </ExtendButton>
         </ButtonRow>
         <CloseButton type="button" onClick={onClose}>
@@ -104,6 +141,12 @@ const BaseButton = styled.button<{ $accent?: string }>`
   &:hover {
     transform: translateY(-2px);
     filter: brightness(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
   }
 `;
 
