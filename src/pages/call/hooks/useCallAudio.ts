@@ -38,7 +38,6 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
       return;
     }
 
-    console.log("[Audio] 녹음 재시작");
     recorder.start(1000);
     setIsRecording(true);
     lastSoundTimeRef.current = Date.now();
@@ -62,17 +61,13 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
       if (recorder && recorder.state === "recording") {
         isPlaybackStoppingRef.current = true;
         recorder.stop();
-        console.log("[Audio] 재생을 위해 녹음 일시정지");
       }
 
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       audioPlayerRef.current = audio;
       isPlayingRef.current = true;
-      console.log("[Audio] 오디오 재생 시작, isPlaying:", isPlayingRef.current);
-
       audio.onended = () => {
-        console.log("[Audio] 오디오 재생 완료, isPlaying을 false로 설정");
         URL.revokeObjectURL(audioUrl);
         isPlayingRef.current = false;
         if (audioPlayerRef.current === audio) {
@@ -82,7 +77,6 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
       };
 
       audio.onerror = () => {
-        console.log("[Audio] 오디오 재생 에러, isPlaying을 false로 설정");
         isPlayingRef.current = false;
         URL.revokeObjectURL(audioUrl);
         if (audioPlayerRef.current === audio) {
@@ -92,9 +86,7 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
 
       audio
         .play()
-        .then(() => {
-          console.log("[Audio] 오디오 재생 성공");
-        })
+        .then(() => {})
         .catch((error) => {
           console.error("오디오 재생 실패:", error);
           isPlayingRef.current = false;
@@ -123,16 +115,8 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
   // 오디오 청크 전송
   const sendAudioChunk = useCallback(
     async (audioBlob: Blob) => {
-      console.log("[Audio] sendAudioChunk 호출:", {
-        blobSize: audioBlob.size,
-        isProcessing: isProcessingRef.current,
-        isPlaying: isPlayingRef.current,
-        isMounted: isMountedRef.current,
-      });
-
       // 이미 처리 중이거나 재생 중이거나 빈 파일이거나 언마운트되었으면 스킵
       if (isProcessingRef.current || isPlayingRef.current || audioBlob.size === 0 || !isMountedRef.current) {
-        console.log("[Audio] 전송 스킵 - 조건 불만족");
         return;
       }
 
@@ -141,29 +125,23 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
         return;
       }
 
-      console.log("[Audio] API 요청 시작");
       isProcessingRef.current = true;
       setIsProcessing(true);
       try {
         const { postAudio } = await import("../services/postAudio");
-        console.log("[Audio] API 요청 전송 중...");
         const responseBlob = await postAudio({
           characterId,
           sessionId,
           audioFile: new File([audioBlob], "audio.webm", { type: "audio/webm" }),
         });
 
-        console.log("[Audio] API 응답 수신:", responseBlob?.size || 0, "bytes");
-
         // 컴포넌트가 언마운트되었으면 응답 처리하지 않음
         if (!isMountedRef.current) {
-          console.log("[Audio] 언마운트됨 - 응답 처리 스킵");
           return;
         }
 
         // 응답 오디오 재생
         if (responseBlob && responseBlob.size > 0) {
-          console.log("[Audio] 오디오 재생 시작");
           playAudio(responseBlob);
           onAudioReceived?.(responseBlob);
         }
@@ -185,10 +163,8 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
 
   // 녹음 시작
   const startRecording = useCallback(async () => {
-    console.log("[Audio] 녹음 시작 시도");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log("[Audio] 마이크 권한 획득 성공");
       streamRef.current = stream;
 
       // AudioContext 생성 (음성 감지용)
@@ -213,16 +189,13 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data && event.data.size > 0) {
           audioChunksRef.current.push(event.data);
-          console.log("[Audio] 데이터 수집:", event.data.size, "bytes, 총 청크:", audioChunksRef.current.length);
         }
       };
 
       chunkStartTimeRef.current = Date.now();
 
       mediaRecorder.onstop = async () => {
-        console.log("[Audio] 녹음 중지, 청크 개수:", audioChunksRef.current.length);
         if (isPlaybackStoppingRef.current) {
-          console.log("[Audio] 재생 중 단절, 전송 생략");
           isPlaybackStoppingRef.current = false;
           audioChunksRef.current = [];
           chunkStartTimeRef.current = Date.now();
@@ -233,14 +206,6 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
           const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
           const recordingDuration = Date.now() - chunkStartTimeRef.current;
 
-          console.log("[Audio] 녹음 완료:", {
-            blobSize: audioBlob.size,
-            duration: recordingDuration,
-            isProcessing: isProcessingRef.current,
-            isPlaying: isPlayingRef.current,
-            minDuration: MIN_RECORDING_DURATION,
-          });
-
           // 최소 녹음 시간을 만족하고, 처리 중이 아니고, 재생 중이 아닐 때만 전송
           // 마운트 체크는 sendAudioChunk 내부에서 수행
           if (
@@ -249,14 +214,9 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
             !isProcessingRef.current &&
             !isPlayingRef.current
           ) {
-            console.log("[Audio] 전송 시작");
             await sendAudioChunk(audioBlob);
-          } else {
-            console.log("[Audio] 전송 스킵 - 조건 불만족");
           }
           audioChunksRef.current = [];
-        } else {
-          console.log("[Audio] 전송 스킵 - 데이터 없음");
         }
 
         // 마운트 상태와 관계없이 시간 리셋 (다음 녹음을 위해)
@@ -266,7 +226,6 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
       // 주기적으로 체크하여 전송
       // timeslice를 지정하여 주기적으로 데이터 수집 (1초마다)
       mediaRecorder.start(1000);
-      console.log("[Audio] MediaRecorder 시작됨, 상태:", mediaRecorder.state);
       setIsRecording(true);
       lastSoundTimeRef.current = Date.now();
 
@@ -292,20 +251,8 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
 
         const shouldSend = (shouldSendBySilence || shouldSendByTime) && audioChunksRef.current.length > 0;
 
-        if (shouldSend) {
-          console.log("[Audio] 전송 조건 만족:", {
-            timeSinceLastSound,
-            recordingDuration,
-            chunksCount: audioChunksRef.current.length,
-            isPlaying: isPlayingRef.current,
-            shouldSendByMaxDuration: shouldSendByTime,
-          });
-
-          if (!isPlayingRef.current) {
-            mediaRecorder.stop();
-          } else {
-            console.log("[Audio] 재생 중이어서 전송 대기");
-          }
+        if (shouldSend && !isPlayingRef.current) {
+          mediaRecorder.stop();
         }
       }, 300); // 0.3초마다 체크 (더 빠른 반응)
     } catch (error) {
@@ -316,11 +263,8 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
 
   // 녹음 중지
   const stopRecording = useCallback(() => {
-    console.log("[Audio] stopRecording 호출");
-
     if (mediaRecorderRef.current) {
       if (mediaRecorderRef.current.state !== "inactive") {
-        console.log("[Audio] MediaRecorder 중지, 현재 상태:", mediaRecorderRef.current.state);
         mediaRecorderRef.current.stop();
       }
       mediaRecorderRef.current = null;
@@ -329,7 +273,6 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => {
         track.stop();
-        console.log("[Audio] 스트림 트랙 중지");
       });
       streamRef.current = null;
     }
@@ -337,19 +280,16 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
     if (audioContextRef.current) {
       audioContextRef.current.close();
       audioContextRef.current = null;
-      console.log("[Audio] AudioContext 종료");
     }
 
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
-      console.log("[Audio] interval 정리");
     }
 
     if (checkIntervalRef.current) {
       clearInterval(checkIntervalRef.current);
       checkIntervalRef.current = null;
-      console.log("[Audio] checkInterval 정리");
     }
 
     audioChunksRef.current = [];
@@ -364,7 +304,6 @@ export const useCallAudio = ({ characterId, sessionId, isMuted, onAudioReceived 
 
   // 음소거 상태에 따라 녹음 제어
   useEffect(() => {
-    console.log("[Audio] 음소거 상태 변경:", { isMuted, isRecording });
     if (isMuted) {
       stopRecording();
     } else if (!isRecording && !isMuted) {
